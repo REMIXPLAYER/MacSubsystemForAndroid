@@ -15,8 +15,10 @@ OUT="${1:-${ROOT}/build/payload/bridge.apk}"
 SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
 [ -n "${SDK}" ] || { echo "Set ANDROID_HOME to your Android SDK"; exit 1; }
 
-BUILD_TOOLS="$(ls -d "${SDK}"/build-tools/* | sort -V | tail -1)"
-PLATFORM="$(ls -d "${SDK}"/platforms/android-* | sort -V | tail -1)/android.jar"
+# Newest stable build-tools and platform (skip previews such as -rc1 or -beta3).
+newest() { local all stable; all="$(ls -d "$@" 2>/dev/null | sort -V)"; stable="$(grep -E '[-/][0-9.]+$' <<<"${all}" || true)"; tail -1 <<<"${stable:-${all}}"; }
+BUILD_TOOLS="$(newest "${SDK}"/build-tools/*)"
+PLATFORM="$(newest "${SDK}"/platforms/android-*)/android.jar"
 VERSION="$(awk -F' *= *' '/^MSA_BRIDGE_VERSION/ {print $2}' "${ROOT}/apple/Config/Base.xcconfig")"
 VERSION="${VERSION:-1}"
 echo "Building bridge ${VERSION} with $(basename "${BUILD_TOOLS}") and $(basename "$(dirname "${PLATFORM}")")"

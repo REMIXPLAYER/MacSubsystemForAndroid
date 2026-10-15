@@ -3,7 +3,7 @@
   Mac Subsystem for Android - the bridge app that runs inside Android.
 
   It has no screen. The Mac reads from its content provider with
-  `content read --uri content://io.github.harkhowalia1.msa.bridge/<path>` over ADB:
+  `content read` (URI content://io.github.harkhowalia1.msa.bridge/PATH) over ADB:
     version              the bridge's versionCode
     apps.json            launchable apps (package, activity, label, version, icon kind)
     icon/<package>       the app's icon as a 512x512 PNG (adaptive icons unmasked)
