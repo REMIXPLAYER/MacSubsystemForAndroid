@@ -47,7 +47,10 @@ jobs:
       - name: Build bridge.apk
         env:
           BRIDGE_KEYSTORE_PASSWORD: ${{ secrets.BRIDGE_KEYSTORE_PASSWORD }}
-        run: android/bridge/build.sh build/payload/bridge.apk
+        run: |
+          set -o pipefail
+          android/bridge/build.sh build/payload/bridge.apk 2>&1 | tee bridge.log \
+            || { .github/scripts/report-errors.sh bridge.log "Bridge build"; exit 1; }
 
       - uses: actions/upload-artifact@v4
         with:
@@ -95,25 +98,7 @@ jobs:
           xcodebuild -project MacSubsystemForAndroid.xcodeproj -target Subsystem -configuration Release \
             SYMROOT="$PWD/build" MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
             CODE_SIGNING_ALLOWED=NO build 2>&1 | tee mac.log \
-            || { grep -E "error:|Undefined symbol" mac.log | sort -u | head -60 | sed 's/^/::error::/'; exit 1; }
-
-      # Full error lists go to the ci-logs branch (annotations stop at 10 per step).
-      - name: Publish error log
-        if: failure()
-        env:
-          TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/ci-logs" && cd "$RUNNER_TEMP/ci-logs"
-          for f in "$GITHUB_WORKSPACE"/apple/*.log; do
-            [ -f "$f" ] || continue
-            name="$(basename "$f" .log)"
-            grep -hE "error:|warning: .*Swift|Undefined symbol|ld: " "$f" | sort -u | head -400 > "$name-errors.txt" || true
-            tail -300 "$f" > "$name-tail.txt"
-          done
-          echo "run ${GITHUB_RUN_ID} job ${GITHUB_JOB} commit ${GITHUB_SHA}" > README.txt
-          git init -q -b ci-logs && git add -A
-          git -c user.name=ci -c user.email=ci@localhost commit -qm "Logs for run ${GITHUB_RUN_ID} (${GITHUB_JOB})"
-          git push -qf "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "ci-logs:ci-logs-${GITHUB_JOB}"
+            || { ../.github/scripts/report-errors.sh mac.log "Mac build" "error:|Undefined symbol|ld: "; exit 1; }
 
       # Optional: Developer ID signing + notarization when these secrets exist.
       - name: Import signing certificate
