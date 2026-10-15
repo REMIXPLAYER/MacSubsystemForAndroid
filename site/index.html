@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mac Subsystem for Android — Android apps, at home on your Mac</title>
+  <meta name="description" content="Mac Subsystem for Android runs Android apps on your Mac like Mac apps: each one in its own window with its own Dock icon, game controllers, smart performance modes, and always ready in the background. Free and open source.">
+  <meta name="theme-color" content="#07110e">
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-droid" viewBox="0 0 24 24"><path d="M8.2 11.9 5.7 7.9m10.1 4 2.5-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path fill-rule="evenodd" fill="currentColor" d="M3 18a9 9 0 0 1 18 0zM7.1 14.2a1 1 0 1 0 2 0a1 1 0 1 0-2 0zM14.9 14.2a1 1 0 1 0 2 0a1 1 0 1 0-2 0z"/></symbol>
+    <symbol id="i-window" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M3 9h18" stroke="currentColor" stroke-width="1.9"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M9 4h6v3H9z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M4 7.5 12 12l8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M5 19 13 11" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-wand" viewBox="0 0 24 24"><path d="m4 20 11-11M14 4v3m5 2h-3m2-4-2 2m-8-1v2m-1-1h2m10 9v2m-1-1h2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 17a8 8 0 1 1 16 0" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="m12 17 5-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-pad" viewBox="0 0 24 24"><path d="M7 7h10a4 4 0 0 1 3.9 3.1l1 4.7A2.5 2.5 0 0 1 17.6 17l-2.1-2.5h-7L6.4 17a2.5 2.5 0 0 1-4.3-2.2l1-4.7A4 4 0 0 1 7 7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7.5 10v3M6 11.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="10.5" r="1" fill="currentColor"/><circle cx="17.8" cy="12.5" r="1" fill="currentColor"/></symbol>
+  </svg>
+
+  <header class="topbar">
+    <div class="container">
+      <a class="logo" href="./"><img src="assets/icon-512.png" alt="">Mac Subsystem for Android</a>
+      <nav class="topnav" aria-label="Main">
+        <a href="#modes" class="hide-sm">Modes</a>
+        <a href="#controllers" class="hide-sm">Controllers</a>
+        <a href="guide.html">Guide</a>
+        <a href="https://github.com/__REPO__">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">Mac Subsystem for Android</span>
+          <h1>Android apps, <em>at home</em> on your Mac.</h1>
+          <p class="lede">Run Android apps on your Mac as if they were made for it. Every Android app gets its own window, its own Dock icon and a place in Launchpad, while Android itself runs quietly in the background, ready the moment you need it.</p>
+          <div class="cta">
+            <a class="btn btn-primary" id="download" href="https://github.com/__REPO__/releases/latest">
+              <svg aria-hidden="true"><use href="#i-download"/></svg>Download for Mac
+            </a>
+            <a class="btn btn-ghost" href="#how">How it works</a>
+          </div>
+          <p class="fineprint" id="release-line">Free and open source · Apple silicon · macOS 15 or later</p>
+        </div>
+
+        <div class="mac" role="img" aria-label="A Mac desktop with two Android apps in their own windows, a game controller playing one of them, and the Subsystem's menu bar menu open showing Smart mode.">
+          <div class="mac-bar" aria-hidden="true">
+            <b>Pixel Hopper</b><span>File</span><span>Edit</span><span>View</span><span>Window</span>
+            <span class="tray">
+              <span class="tray-icon"><svg><use href="#i-droid"/></svg></span>
+              <span id="clock">9:41</span>
+            </span>
+          </div>
+          <div class="tray-menu" aria-hidden="true">
+            <div class="item">Android: Running · Smart</div>
+            <div class="item dim">Game in front: Gaming level</div>
+            <hr>
+            <div class="item"><span class="check"></span>Power Saver</div>
+            <div class="item on"><span class="check">✓</span>Smart</div>
+            <div class="item"><span class="check"></span>Performance</div>
+            <div class="item"><span class="check"></span>Gaming</div>
+            <hr>
+            <div class="item"><span class="check">✓</span>Always Ready</div>
+            <div class="item"><span class="check"></span>Quit Mac Subsystem for Android</div>
+          </div>
+          <div class="window w-store" aria-hidden="true">
+            <div class="title"><i></i><i></i><i></i><span>F-Droid</span></div>
+            <div class="store">
+              <div class="banner"></div>
+              <div class="row"><i></i><span></span></div>
+              <div class="row"><i></i><span></span></div>
+              <div class="row"><i></i><span></span></div>
+            </div>
+          </div>
+          <div class="window w-game" aria-hidden="true">
+            <div class="title"><i></i><i></i><i></i><span>Pixel Hopper</span></div>
+            <div class="game">
+              <span class="coin"></span><span class="coin"></span><span class="coin"></span>
+              <div class="player"></div>
+              <div class="pad"><svg><use href="#i-pad"/></svg>Controller</div>
+            </div>
+          </div>
+          <div class="dock" aria-hidden="true">
+            <span class="d1"></span><span class="d2"></span><span class="sep"></span><span class="d3 on"></span><span class="d4 on"></span><span class="d5 on"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="mac">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Made for macOS</span>
+          <h2>Android, translated into Mac.</h2>
+          <p>Android runs in a lightweight virtual machine you never see. What you see are your apps, behaving the way Mac apps do.</p>
+        </div>
+        <div class="translate">
+          <div class="pair"><div class="from"><small>In Android</small>The app drawer</div><div class="arrow"><svg><use href="#i-arrow"/></svg></div><div class="to"><small>On your Mac</small>Launchpad, Spotlight and Applications</div></div>
+          <div class="pair"><div class="from"><small>In Android</small>Switching between recent apps</div><div class="arrow"><svg><use href="#i-arrow"/></svg></div><div class="to"><small>On your Mac</small>One resizable window, Dock icon and ⌘-Tab entry per app</div></div>
+          <div class="pair"><div class="from"><small>In Android</small>Apps built for Arm phones</div><div class="arrow"><svg><use href="#i-arrow"/></svg></div><div class="to"><small>On your Mac</small>Apple's Hypervisor framework, Arm on Arm, no translation</div></div>
+          <div class="pair"><div class="from"><small>In Android</small>The notification shade</div><div class="arrow"><svg><use href="#i-arrow"/></svg></div><div class="to"><small>On your Mac</small>Notification Centre; click to open the app</div></div>
+          <div class="pair"><div class="from"><small>In Android</small>An app store</div><div class="arrow"><svg><use href="#i-arrow"/></svg></div><div class="to"><small>On your Mac</small>F-Droid in one click, or double-click any APK</div></div>
+          <div class="pair"><div class="from"><small>In Android</small>USB debugging</div><div class="arrow"><svg><use href="#i-arrow"/></svg></div><div class="to"><small>On your Mac</small>Developer mode, ADB at 127.0.0.1:58526</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="features">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Feels native</span>
+          <h2>Not an emulator window. Your apps.</h2>
+        </div>
+        <div class="cards">
+          <div class="card"><div class="glyph"><svg><use href="#i-window"/></svg></div><h3>A window per app</h3><p>Each app gets its own Android display streamed into its own Mac window. Resize it and the app re-lays itself out like on a tablet.</p></div>
+          <div class="card"><div class="glyph"><svg><use href="#i-box"/></svg></div><h3>Install by double-click</h3><p>Open an .apk, .apks or .xapk and it installs, appears in Launchpad and opens. Apps installed inside Android show up too.</p></div>
+          <div class="card"><div class="glyph"><svg><use href="#i-bell"/></svg></div><h3>Notifications</h3><p>Android notifications land in Notification Centre. Click one and the app opens in its window.</p></div>
+          <div class="card"><div class="glyph"><svg><use href="#i-clip"/></svg></div><h3>Copy and paste</h3><p>Copy in Android, paste on the Mac, and the other way around. Your Mac keyboard and layout just work.</p></div>
+          <div class="card"><div class="glyph"><svg><use href="#i-pad"/></svg></div><h3>Game controllers</h3><p>Connect an Xbox, PlayStation or Switch controller to your Mac and Android games pick it up automatically.</p></div>
+          <div class="card"><div class="glyph"><svg><use href="#i-code"/></svg></div><h3>Open source</h3><p>GPLv3, built on LineageOS, QEMU and scrcpy. No account, no Google services, nothing leaves your Mac.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="modes">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Performance modes</span>
+          <h2>As frugal or as fast as you need.</h2>
+          <p>Choose how much of your Mac Android may use. Change it any time from the menu bar; it applies live, without restarting Android.</p>
+        </div>
+        <div class="modes">
+          <div class="mode-tabs" role="tablist" aria-label="Performance modes">
+            <button class="mode-tab" role="tab" aria-selected="false" data-mode="saver" id="tab-saver" aria-controls="mode-panel">
+              <span class="glyph"><svg><use href="#i-leaf"/></svg></span>
+              <span><strong>Power Saver</strong><span>Runs Android only while an app is open, and adapts like Smart while it does, staying frugal.</span></span>
+            </button>
+            <button class="mode-tab" role="tab" aria-selected="true" data-mode="smart" id="tab-smart" aria-controls="mode-panel">
+              <span class="glyph"><svg><use href="#i-wand"/></svg></span>
+              <span><strong>Smart</strong><span>Always ready and always adapting. Steps back the moment your Mac needs its resources or the battery runs low.</span></span>
+            </button>
+            <button class="mode-tab" role="tab" aria-selected="false" data-mode="performance" id="tab-performance" aria-controls="mode-panel">
+              <span class="glyph"><svg><use href="#i-gauge"/></svg></span>
+              <span><strong>Performance</strong><span>Maximum performance: every core and all the memory you allow, all the time.</span></span>
+            </button>
+            <button class="mode-tab" role="tab" aria-selected="false" data-mode="game" id="tab-game" aria-controls="mode-panel">
+              <span class="glyph"><svg><use href="#i-pad"/></svg></span>
+              <span><strong>Gaming</strong><span>Maximum performance tuned for games: up to 120 fps and lower input latency.</span></span>
+            </button>
+          </div>
+
+          <div class="meter-panel" id="mode-panel" role="tabpanel" aria-live="polite">
+            <h3 id="mode-title">Smart</h3>
+            <p id="mode-text">Stays ready in the background and adapts all the time.</p>
+            <div class="meter"><span>Processor</span><span class="track"><span class="fill" id="m-cpu"></span></span><span class="value" id="v-cpu"></span></div>
+            <div class="meter"><span>Memory</span><span class="track"><span class="fill" id="m-mem"></span></span><span class="value" id="v-mem"></span></div>
+            <div class="meter"><span>Frame rate</span><span class="track"><span class="fill" id="m-fps"></span></span><span class="value" id="v-fps"></span></div>
+            <div class="meter energy"><span>Energy use</span><span class="track"><span class="fill" id="m-energy"></span></span><span class="value" id="v-energy"></span></div>
+            <ul class="smart-rules" id="smart-rules">
+              <li><b>No app open</b>Saving power, still ready to open apps instantly</li>
+              <li><b>App in front</b>Full speed on power, Balanced on battery</li>
+              <li><b>Game in front</b>Gaming level on power, Performance on battery</li>
+              <li><b>Mac needs it</b>Saving power while other apps are busy, memory is tight, the battery is low, Low Power Mode is on or the Mac runs hot</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="always">
+      <div class="container">
+        <div class="split">
+          <div>
+            <span class="eyebrow">Always ready</span>
+            <h2>Starts with your Mac. Opens apps instantly.</h2>
+            <p>Turn on Always Ready and the Subsystem starts when you log in and keeps Android running in the background, so an Android app opens as fast as any Mac app. In Smart mode Android uses almost nothing while it waits, and gets out of the way whenever your Mac is busy.</p>
+            <ul class="checks">
+              <li>Lives in the menu bar: status, modes, your apps, settings and Quit.</li>
+              <li>Prefer it lighter? <em>As needed</em> starts Android only when you open an app and turns it off when you're done. In Power Saver mode, Android never runs without an app open.</li>
+              <li>Quitting turns Android off cleanly.</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <div class="menu-demo" aria-label="The Subsystem's menu bar menu">
+              <div class="bar"><span class="tray-icon"><svg width="13" height="13"><use href="#i-droid"/></svg></span><span>Wed 9:41</span></div>
+              <ul>
+                <li class="head">Android: Running · Smart (saving power)</li>
+                <li class="sep"></li>
+                <li>Restart Android</li>
+                <li>Turn Off Android</li>
+                <li class="sep"></li>
+                <li class="head">Performance Mode</li>
+                <li>Power Saver</li>
+                <li class="on">✓ Smart</li>
+                <li>Performance</li>
+                <li>Gaming</li>
+                <li class="sep"></li>
+                <li>✓ Always Ready (Start with Mac)</li>
+                <li>Open Android App ›</li>
+                <li>Install Android App…</li>
+                <li class="sep"></li>
+                <li>Settings… <kbd>⌘,</kbd></li>
+                <li>Quit Mac Subsystem for Android <kbd>⌘Q</kbd></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="split flip" id="controllers">
+          <div>
+            <span class="eyebrow">Game controllers</span>
+            <h2>Plug in a controller. Play.</h2>
+            <p>Any controller your Mac recognises (Xbox, PlayStation DualSense and DualShock, Switch Pro, MFi) shows up in Android as a standard gamepad that every Android game understands. No setup, no button mapping.</p>
+            <ul class="checks">
+              <li>Sticks, analog triggers, d-pad and every button.</li>
+              <li>Up to eight controllers for local multiplayer.</li>
+              <li>The controller drives whichever Android window is in front.</li>
+            </ul>
+          </div>
+          <div class="panel controller-art" aria-hidden="true">
+            <svg viewBox="0 0 400 230">
+              <defs><linearGradient id="padg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f9d6c"/><stop offset="1" stop-color="#0b5c3e"/></linearGradient></defs>
+              <path d="M110 40h180c40 0 70 26 80 64l18 72c8 34-34 58-58 32l-34-38H104l-34 38c-24 26-66 2-58-32l18-72c10-38 40-64 80-64z" fill="url(#padg)"/>
+              <circle cx="128" cy="104" r="24" fill="#0a2f22"/><circle cx="128" cy="104" r="15" fill="#3fe0a0"/>
+              <circle cx="238" cy="148" r="22" fill="#0a2f22"/><circle cx="238" cy="148" r="13" fill="#7cf0c0"/>
+              <rect x="150" y="136" width="44" height="14" rx="4" fill="#0a2f22"/><rect x="165" y="121" width="14" height="44" rx="4" fill="#0a2f22"/>
+              <circle cx="292" cy="88" r="10" fill="#f2b34b"/><circle cx="314" cy="108" r="10" fill="#f0706a"/><circle cx="270" cy="108" r="10" fill="#6aa8ff"/><circle cx="292" cy="128" r="10" fill="#3fe0a0"/>
+              <circle cx="200" cy="80" r="8" fill="#e8f1ee" opacity=".9"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="how">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">How it works</span>
+          <h2>Five layers, one seamless app.</h2>
+          <p>Every piece is open source. The <a href="guide.html#architecture">guide</a> goes into detail.</p>
+        </div>
+        <div class="stack">
+          <div class="layer"><b>Your Android apps</b><span>Mac apps in ~/Applications/Android Apps, each one its own process with its own Dock icon.</span></div>
+          <div class="layer"><b>App windows</b><span>Each window asks Android for a new virtual display and streams it with hardware video decoding.</span></div>
+          <div class="layer"><b>The Subsystem</b><span>A menu bar app that starts and stops Android, installs apps, applies the performance mode and relays notifications.</span></div>
+          <div class="layer"><b>Android 17</b><span>LineageOS 24 without Google apps, built for virtual machines, about 1.5 GB to download.</span></div>
+          <div class="layer"><b>Apple silicon</b><span>QEMU on Apple's Hypervisor framework: Arm Android on an Arm Mac at close to native speed.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="start">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Get started</span>
+          <h2>Four steps, about five minutes.</h2>
+        </div>
+        <ol class="steps">
+          <li><h3>Install</h3><p>Open the DMG and drag Mac Subsystem for Android to Applications.</p></li>
+          <li><h3>Set up Android</h3><p>It downloads Android for you. Tick Always Ready if you want apps to open instantly.</p></li>
+          <li><h3>Add apps</h3><p>Double-click APKs, or get F-Droid and install from there.</p></li>
+          <li><h3>Open them</h3><p>From Launchpad, Spotlight or the Dock, like any other app.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="band" id="status">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Honest status</span>
+          <h2>What works today.</h2>
+          <p>An early release. This table is kept up to date.</p>
+        </div>
+        <table class="status">
+          <thead><tr><th scope="col">Feature</th><th scope="col">State</th><th scope="col">Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Apps in their own resizable windows</td><td><span class="pill yes">Works</span></td><td>Android virtual displays via scrcpy 5.</td></tr>
+            <tr><td>Launchpad, Spotlight, Dock, ⌘-Tab</td><td><span class="pill yes">Works</span></td><td>One small launcher per Android app.</td></tr>
+            <tr><td>APK, APKS, XAPK installs</td><td><span class="pill yes">Works</span></td><td>Double-click, drag and drop, or F-Droid.</td></tr>
+            <tr><td>Performance modes and Always Ready</td><td><span class="pill yes">Works</span></td><td>Core hotplug needs the project's own Android image.</td></tr>
+            <tr><td>Game controllers</td><td><span class="pill yes">Works</span></td><td>Any controller macOS supports, as a standard Android gamepad.</td></tr>
+            <tr><td>Automatic storage clean-up</td><td><span class="pill yes">Works</span></td><td>Downloads, leftovers, logs, Android's unused space.</td></tr>
+            <tr><td>Notifications, clipboard, sound</td><td><span class="pill yes">Works</span></td><td>Microphone off unless you allow it.</td></tr>
+            <tr><td>3D graphics acceleration</td><td><span class="pill part">Software</span></td><td>Android draws on the CPU for now; 3D games run slower than they could.</td></tr>
+            <tr><td>Multi-touch gestures (pinch, rotate)</td><td><span class="pill part">Planned</span></td><td>Clicks, drags and scrolling work.</td></tr>
+            <tr><td>Google Play and Google services</td><td><span class="pill no">No</span></td><td>Google doesn't license them for this.</td></tr>
+            <tr><td>Intel Macs, iPhone, iPad</td><td><span class="pill no">No</span></td><td>Needs Apple silicon and macOS.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="band" id="faq">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Questions</span>
+          <h2>Good to know.</h2>
+        </div>
+        <div class="faq">
+          <details><summary>Who makes it?</summary><p>It's an independent, open-source project. It isn't affiliated with or endorsed by Google, Apple or LineageOS.</p></details>
+          <details><summary>Can I use Google Play?</summary><p>Not out of the box. The Android image has no Google apps, so you install apps as APKs or from F-Droid. Apps that require Google Play services may not work.</p></details>
+          <details><summary>Does it drain my battery?</summary><p>In Power Saver mode Android only runs while an Android app is open, and turns off 30 seconds after you close the last one. Smart mode keeps Android ready, but on the efficiency cores with most of its memory handed back to macOS whenever no Android app is in front, and it drops to power saving whenever the battery is low or other apps need your Mac.</p></details>
+          <details><summary>Will it fill up my disk?</summary><p>It cleans up after itself: finished downloads, install leftovers, old images and logs go automatically, and space Android frees is given back to your Mac. When your Mac is low on space it also clears Android apps' caches and compacts Android's disks. Settings › Storage shows what it uses.</p></details>
+          <details><summary>Which controllers work?</summary><p>Anything macOS's Game Controller framework supports: Xbox Wireless, PlayStation DualSense and DualShock 4, Nintendo Switch Pro and MFi controllers. Pair them in System Settings › Bluetooth.</p></details>
+          <details><summary>Will it run on my Intel Mac, iPhone or iPad?</summary><p>No. It needs Apple silicon for the hypervisor, and iOS doesn't allow apps to run virtual machines like this.</p></details>
+          <details><summary>Can developers use it?</summary><p>Yes. Turn on Developer mode and connect with <code>adb connect 127.0.0.1:58526</code>. Android Studio sees it like a device.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="container">
+        <div class="download">
+          <div>
+            <h2>Bring your Android apps to the Mac.</h2>
+            <p>Free and open source. Apple silicon, macOS 15 or later.</p>
+          </div>
+          <a class="btn btn-primary" id="download-2" href="https://github.com/__REPO__/releases/latest">
+            <svg aria-hidden="true"><use href="#i-download"/></svg>Download for Mac
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <nav aria-label="Footer">
+        <a href="guide.html">Guide</a>
+        <a href="https://github.com/__REPO__">Source code</a>
+        <a href="https://github.com/__REPO__/releases">Releases</a>
+        <a href="https://github.com/__REPO__/issues">Report a problem</a>
+      </nav>
+      <p>Mac Subsystem for Android is free software under the GNU GPL v3, built on LineageOS, QEMU and scrcpy. It is an independent project, not made, affiliated with or endorsed by Google, Apple or the LineageOS project. Android is a trademark of Google LLC; Mac and macOS are trademarks of Apple Inc. The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons 3.0 Attribution License</a>.</p>
+    </div>
+  </footer>
+
+  <script src="site.js" defer></script>
+</body>
+</html>

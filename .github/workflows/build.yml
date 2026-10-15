@@ -1,0 +1,160 @@
+name: Build app
+
+# bridge  - builds bridge.apk on Linux with the Android SDK.
+# mac     - fetches the scrcpy server, bundles Homebrew's QEMU, builds the app,
+#           signs it (ad hoc, or Developer ID when secrets exist) and makes the DMG.
+#           On main it publishes the release named in VERSION.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apple/**"
+      - "android/**"
+      - "core/**"
+      - "VERSION"
+      - ".github/workflows/build.yml"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bridge:
+    name: Bridge app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Optional: a fixed signing key so Android accepts bridge updates in place.
+      - name: Signing key
+        env:
+          BRIDGE_KEYSTORE_B64: ${{ secrets.BRIDGE_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$BRIDGE_KEYSTORE_B64" ]; then
+            mkdir -p build && echo "$BRIDGE_KEYSTORE_B64" | base64 --decode > build/bridge.keystore
+          fi
+
+      - name: Build bridge.apk
+        env:
+          BRIDGE_KEYSTORE_PASSWORD: ${{ secrets.BRIDGE_KEYSTORE_PASSWORD }}
+        run: android/bridge/build.sh build/payload/bridge.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bridge-apk
+          path: build/payload/bridge.apk
+
+  mac:
+    name: Mac app
+    needs: bridge
+    runs-on: macos-15
+    timeout-minutes: 90
+    env:
+      HAS_MAC_CERT: ${{ secrets.MAC_CERT_P12 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select newest Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
+
+      - name: Install tools
+        run: brew install xcodegen create-dmg dylibbundler
+
+      - name: Version
+        run: echo "VERSION=$(tr -d '[:space:]' < VERSION)" >> "$GITHUB_ENV"
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: bridge-apk
+          path: build/payload
+
+      - name: scrcpy server
+        run: core/scripts/fetch-scrcpy-server.sh
+
+      - name: Bundle QEMU
+        run: core/scripts/bundle-qemu.sh
+
+      - name: Generate project
+        working-directory: apple
+        run: xcodegen generate
+
+      - name: Build
+        working-directory: apple
+        run: |
+          set -o pipefail
+          xcodebuild -project MacSubsystemForAndroid.xcodeproj -target Subsystem -configuration Release \
+            SYMROOT="$PWD/build" MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | tee mac.log \
+            || { grep -E "error:|Undefined symbol" mac.log | sort -u | head -60 | sed 's/^/::error::/'; exit 1; }
+
+      # Full error lists go to the ci-logs branch (annotations stop at 10 per step).
+      - name: Publish error log
+        if: failure()
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/ci-logs" && cd "$RUNNER_TEMP/ci-logs"
+          for f in "$GITHUB_WORKSPACE"/apple/*.log; do
+            [ -f "$f" ] || continue
+            name="$(basename "$f" .log)"
+            grep -hE "error:|warning: .*Swift|Undefined symbol|ld: " "$f" | sort -u | head -400 > "$name-errors.txt" || true
+            tail -300 "$f" > "$name-tail.txt"
+          done
+          echo "run ${GITHUB_RUN_ID} job ${GITHUB_JOB} commit ${GITHUB_SHA}" > README.txt
+          git init -q -b ci-logs && git add -A
+          git -c user.name=ci -c user.email=ci@localhost commit -qm "Logs for run ${GITHUB_RUN_ID} (${GITHUB_JOB})"
+          git push -qf "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "ci-logs:ci-logs-${GITHUB_JOB}"
+
+      # Optional: Developer ID signing + notarization when these secrets exist.
+      - name: Import signing certificate
+        if: env.HAS_MAC_CERT == 'true'
+        env:
+          MAC_CERT_P12: ${{ secrets.MAC_CERT_P12 }}
+          MAC_CERT_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+        run: |
+          echo "$MAC_CERT_P12" | base64 --decode > cert.p12
+          security create-keychain -p ci build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p ci build.keychain
+          security import cert.p12 -k build.keychain -P "$MAC_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k ci build.keychain
+          rm cert.p12
+
+      - name: Package (.dmg)
+        working-directory: apple
+        env:
+          MAC_SIGN_IDENTITY: ${{ secrets.MAC_SIGN_IDENTITY }}
+          NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
+          NOTARY_TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
+          NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
+        run: scripts/package-mac.sh "$PWD/build/Release/Mac Subsystem for Android.app" "$GITHUB_WORKSPACE/MacSubsystemForAndroid.dmg"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MacSubsystemForAndroid-${{ env.VERSION }}
+          path: MacSubsystemForAndroid.dmg
+
+      - name: Publish release
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          target_commitish: ${{ github.sha }}
+          name: Mac Subsystem for Android ${{ env.VERSION }}
+          prerelease: ${{ startsWith(env.VERSION, '0.') }}
+          make_latest: true
+          overwrite_files: true
+          generate_release_notes: true
+          body: |
+            **Mac (Apple silicon, macOS 15+):** open `MacSubsystemForAndroid.dmg` and drag Mac Subsystem for Android to Applications. On first launch it downloads Android (LineageOS) for you.
+          files: MacSubsystemForAndroid.dmg

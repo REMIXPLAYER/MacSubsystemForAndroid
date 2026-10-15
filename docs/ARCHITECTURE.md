@@ -1,0 +1,115 @@
+# Architecture
+
+```
+ Mac                                                            Android (VM)
+┌──────────────────────────────────────────┐                  ┌──────────────────────────────┐
+│ Mac Subsystem for Android.app  (menu bar)    │   QEMU + HVF     │ LineageOS 24, virtio_arm64only│
+│  VirtualMachine ── qemu-system-aarch64 ──┼─────────────────▶│                              │
+│  Subsystem (state, timers, status.json)  │                  │ adbd :5555                   │
+│  AppCatalog / LauncherGenerator          │   ADB over TCP   │  ▲                           │
+│  PackageInstaller / NotificationRelay ───┼─127.0.0.1:58526─▶│  │ content read …            │
+│  ADBConnection (own client)              │                  │ bridge.apk (provider +       │
+└──────────────────────────────────────────┘                  │   notification listener)    │
+                                                              │                              │
+ ~/Applications/Android Apps/F-Droid.app   (one per app)      │ scrcpy server (app_process)  │
+┌──────────────────────────────────────────┐                  │  ├ virtual display #N        │
+│ AndroidAppHost (copy)                    │   ADB stream     │  │   └ the app's activity     │
+│  ScrcpySession ── localabstract:scrcpy_… ┼─────────────────▶│  └ H.264 encoder, input      │
+│  AVSampleBufferDisplayLayer ◀── H.264 ───┼──────────────────│                              │
+│  mouse/keys/clipboard ── control msgs ───┼─────────────────▶│                              │
+└──────────────────────────────────────────┘                  └──────────────────────────────┘
+```
+
+## Processes
+
+- **Mac Subsystem for Android.app** is an agent (`LSUIElement`) with a menu bar item. It owns QEMU, keeps one ADB connection, and writes `status.json` (off / starting / running / failed, the ADB port).
+- **Each Android app** has a launcher bundle in `~/Applications/Android Apps`. Its executable is a copy of `AndroidAppHost`; its `Info.plist` names the Android package (`MSAPackageName`). Separate processes give each Android app its own Dock icon, ⌘-Tab entry and menu bar.
+- **QEMU** runs as a child process of the Subsystem: `-machine virt -accel hvf -cpu host`, UEFI from `edk2-aarch64-code.fd`, virtio-blk disks, user-mode networking with `hostfwd=tcp:127.0.0.1:58526-:5555`, `intel-hda` through Core Audio, `-display none`.
+
+## Starting Android
+
+1. A launcher (or the person) opens `msa://start`. The Subsystem launches QEMU on the image's copy-on-write disks (`vm/disk*.qcow2`, backed by the read-only image in `rom/`).
+2. It connects to adbd (RSA key in `adbkey`; the project's image doesn't prompt), waits for `sys.boot_completed`, and on the first boot marks Android as set up, keeps it awake and sets the time zone.
+3. It installs or updates `bridge.apk` and grants its notification listener, pushes `scrcpy-server.jar`, then marks itself *running*.
+4. Every 10 s it reads `apps.json` from the bridge and creates, refreshes or removes launchers (icons come from `icon/<package>`; adaptive icons are cropped onto the macOS icon grid). Every 3 s it reads `notifications.json` and posts new ones.
+
+*As needed* turns Android off (`reboot -p`, then SIGTERM) once no launcher process has run for the idle time. *Continuous* starts it at launch.
+
+## One app window
+
+`AndroidWindowController` waits for `status.json` to say *running*, connects its own ADB transport, and starts the scrcpy server through `exec:` with:
+
+```
+new_display=<window pixels>/<dpi> flex_display=true vd_system_decorations=false
+display_ime_policy=hide video_codec=h264 audio=false tunnel_forward=true
+```
+
+It then opens `localabstract:scrcpy_<scid>` twice through ADB (video, then control; no port forwarding) and sends `START_APP <package>`. Video packets become `CMSampleBuffer`s (`H264SampleBuilder`) for an `AVSampleBufferDisplayLayer`, which decodes in hardware. Mouse buttons become touches, the wheel becomes scroll events, printable keys become text and the rest become Android keycodes. Resizing the window sends `RESIZE_DISPLAY`, so the Android display (and the app's layout) follows the window. `dpi = 160 × backing scale × App size`, so one Android dp is one Mac point at the default size.
+
+Sound doesn't go through scrcpy: Android plays through the VM's `intel-hda` device, so all apps share one audio path.
+
+## Always Ready and the menu bar
+
+*Always ready* turns on the login item (`SMAppService.mainApp`) and the *Continuous* resources setting, so Android boots at login. A launch at login stays in the menu bar (detected from the open-application event's login-item flag, or a launch within three minutes of the login session starting with the login item on). The menu bar item shows status and the current level, and offers start/restart/turn off, the performance modes, Always Ready, open/install apps, Settings and Quit. Quitting runs `reboot -p` inside Android before QEMU exits.
+
+## Performance modes
+
+`PerformanceManager` resolves the chosen mode to a level and applies it live:
+
+| Level | QEMU scheduling | Android cores online | Memory kept (balloon) | Android power | Window stream |
+|---|---|---|---|---|---|
+| Saver | `PRIO_DARWIN_BG` (efficiency cores, throttled I/O) | 25%, at least 2 | 60% | battery saver on | 30 fps, 6 Mb/s |
+| Balanced | normal | 50% | 85% | normal | 60 fps, 10 Mb/s |
+| Performance | normal | all | 100% | normal | 60 fps, 14 Mb/s |
+| Gaming | normal | all | 100% | fixed-performance mode, `cmd game mode performance <pkg>` | up to 120 fps, 20 Mb/s |
+
+Cores go offline with CPU hotplug (`su 0 sh -c 'echo 0 > /sys/devices/system/cpu/cpuN/online'`, available on the userdebug image); memory goes back through `-device virtio-balloon-pci` and QMP `balloon`; Android's settings through `cmd power set-mode` and `set-fixed-performance-mode-enabled`. The level is written to `status.json`; app windows read it when they open (frame rate, bitrate) and hold a latency-critical activity in Performance and Gaming.
+
+Modes map to levels as follows. Performance → Performance and Gaming → Gaming, always.
+
+*Power Saver* (a hybrid of saving and Smart): Saver when constrained (below) or on battery; otherwise Balanced while an Android app is in front, Saver when not. Android only runs while an app is open.
+
+*Smart* (stays ready) re-evaluates every 10 s and whenever the front app, power source, Low Power Mode or thermal state changes. It is *constrained* when Low Power Mode is on, the Mac is hot (thermal state serious or critical), the battery is under 20%, memory pressure is at warning or above (`kern.memorystatus_vm_pressure_level`), or other processes have used more than 70% of the processor for two samples in a row (host CPU ticks minus QEMU's own time from `proc_pid_rusage`, sampled at most every 5 s). Constrained → Saver; no Android window open → Saver; a game in front (the bridge reports `ApplicationInfo.category == CATEGORY_GAME`) → Gaming (Performance on battery); another Android app in front → Performance (Balanced on battery); Android windows open behind a Mac app → Balanced (Saver on battery).
+
+## When Android turns off
+
+`Subsystem.idleShutdownDelay()` decides how long Android may run with no launcher process: Power Saver 30 s (always, and Always Ready doesn't start it); *As needed* the chosen minutes; *Continuous* never; *Automatic* (default) never for Smart, Performance and Gaming. The check runs every 10 s and whenever the mode or setting changes.
+
+## Storage clean-up
+
+`StorageJanitor` runs at launch (after 60 s), every 6 h and 20 s after Android turns off. Light: finished/abandoned downloads, `rom/.staging-*`, images that aren't current, overlays of replaced images, `msa-install-*` temp folders, notification attachment copies older than a day, icons of removed apps, logs over 2 MB (cut to their last 256 KB while QEMU is off), and a daily `sm fstrim` in Android (disks use `discard=unmap`, so trimmed space leaves the qcow2 files; also run before shutdown when due). Deep (under 15 GB free, or *Clean Up Now*): `pm trim-caches` in Android and, while Android is off, `qemu-img convert -O qcow2 -B <base>` on each overlay, kept only if smaller. Compaction also runs weekly on power; `Subsystem.start()` waits for it.
+
+## Game controllers
+
+`GamepadBridge` in each window host listens to the Game Controller framework. While its window is key, each controller becomes a UHID device in Android through scrcpy's `UHID_CREATE`/`UHID_INPUT` control messages, with scrcpy's gamepad report descriptor (an Xbox 360-style pad, vendor 045e product 028e). The scrcpy server associates UHID devices with its session's virtual display, so input reaches the game in that window. When the window resigns key the devices are destroyed, so the controller follows the window in front.
+
+## The bridge app
+
+`android/bridge` has no UI. Its content provider (readable only by the shell user, through `android.permission.DUMP`) serves:
+
+| Path | Contents |
+|---|---|
+| `version` | the bridge's versionCode (`MSA_BRIDGE_VERSION`) |
+| `apps.json` | launchable apps: package, activity, label, versionName, system, adaptive, game, updated |
+| `icon/<package>` | 512×512 PNG; adaptive icons drawn without a mask |
+| `notifications.json` | active notifications from `NotificationRelayService` |
+
+The Mac reads them with `content read --uri content://io.github.harkhowalia1.msa.bridge/<path>`.
+
+## Files
+
+```
+~/Library/Application Support/Mac Subsystem for Android/
+    adbkey  status.json  apps.json  icons/
+    rom/current.json  rom/<image>/LineageOS_on_ARM64.utm/{config.plist,Data/…}
+    vm/disk0-….qcow2  vm/efi_vars.fd  vm/qemu.log  vm/console.log
+~/Applications/Android Apps/<App>.app
+```
+
+## Next steps
+
+- GPU acceleration: virtio-gpu-gl with virglrenderer and ANGLE (as UTM does) instead of software rendering.
+- Multi-touch (pinch, rotate) from the trackpad.
+- Camera, location and shared folders.
+- Close the Mac window when the Android app finishes its last activity.
+- Faster *As needed* starts with a saved VM snapshot.

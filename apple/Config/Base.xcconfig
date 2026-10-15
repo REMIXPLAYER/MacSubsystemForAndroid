@@ -1,0 +1,25 @@
+// Mac Subsystem for Android - settings shared by every target. Rename the app here.
+
+APP_NAME = Mac Subsystem for Android
+BUNDLE_ID = io.github.harkhowalia1.msa
+URL_SCHEME = msa
+// Folder in ~/Applications that holds one Mac app per Android app.
+LAUNCHER_FOLDER = Android Apps
+// ADB on 127.0.0.1.
+ADB_PORT = 58526
+// Must match build/payload/scrcpy-server.jar (core/scripts/fetch-scrcpy-server.sh).
+SCRCPY_VERSION = 5.0.1
+// Version code of android/bridge (android/bridge/build.sh reads it from here).
+MSA_BRIDGE_VERSION = 1
+MSA_BRIDGE_PACKAGE = io.github.harkhowalia1.msa.bridge
+REPOSITORY = harkhowalia-1/MacSubsystemForAndroid
+WEBSITE_URL = https:/$()/harkhowalia-1.github.io/MacSubsystemForAndroid
+// Where "Download Android" looks for UTM-VM-lineage-*-virtio_arm64only.zip, in order.
+IMAGE_REPOSITORIES = harkhowalia-1/MacSubsystemForAndroid,jqssun/android-lineage-qemu
+
+MACOSX_DEPLOYMENT_TARGET = 15.0
+ARCHS = arm64
+SWIFT_VERSION = 5.0
+CLANG_ENABLE_OBJC_ARC = YES
+ENABLE_USER_SCRIPT_SANDBOXING = NO
+DEAD_CODE_STRIPPING = YES

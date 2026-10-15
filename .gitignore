@@ -1,0 +1,11 @@
+# Build output
+build/
+apple/build/
+apple/*.xcodeproj
+apple/Subsystem/Info.plist
+apple/Subsystem/Subsystem.entitlements
+*.log
+.DS_Store
+xcuserdata/
+rom-out/
+lineage/

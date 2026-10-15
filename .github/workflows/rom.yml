@@ -1,0 +1,61 @@
+name: Build Android image
+
+# Builds LineageOS for the virtio_arm64only VM target (rom/build-rom.sh) and
+# publishes UTM-VM-lineage-...-virtio_arm64only.zip as a release, where the app's
+# "Download Android" finds it.
+#
+# A LineageOS build needs ~300 GB of disk, 32 GB of RAM and several hours, more
+# than GitHub's standard runners have, so it runs on a self-hosted Linux runner
+# by default. A large GitHub-hosted runner works too (pass its label as `runner`).
+# GitHub limits release files to 2 GiB; the LineageOS VM zip fits.
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: Runner label
+        required: true
+        default: self-hosted
+      branch:
+        description: LineageOS branch
+        required: true
+        default: lineage-24.0
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 2880
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build LineageOS
+        env:
+          LINEAGE_BRANCH: ${{ inputs.branch }}
+          WORKDIR: ${{ runner.temp }}/lineage
+        run: rom/build-rom.sh "$GITHUB_WORKSPACE/rom-out"
+
+      - name: Release name
+        run: |
+          ZIP="$(ls rom-out/UTM-VM-lineage-*.zip | head -1)"
+          echo "ZIP=$ZIP" >> "$GITHUB_ENV"
+          NAME="$(basename "$ZIP" .zip)"
+          echo "TAG=android-${NAME#UTM-VM-}" >> "$GITHUB_ENV"
+
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: Android image ${{ env.TAG }}
+          make_latest: false
+          body: |
+            LineageOS ${{ inputs.branch }} for the virtio_arm64only VM target, built by rom/build-rom.sh.
+            Mac Subsystem for Android downloads this automatically; you can also pick the zip in Settings › Advanced › Use an Image File.
+          files: ${{ env.ZIP }}
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ${{ env.ZIP }}

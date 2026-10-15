@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Entitlements for the bundled qemu-system-aarch64 (applied by apple/scripts/package-mac.sh). -->
+<plist version="1.0">
+<dict>
+	<!-- Apple's Hypervisor framework (-accel hvf). -->
+	<key>com.apple.security.hypervisor</key>
+	<true/>
+	<!-- TCG fallback and QEMU's own code generation. -->
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
+	<!-- The bundled glib, pixman, slirp... are signed separately. -->
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
+	<!-- Microphone for Android, only used when turned on in Settings. -->
+	<key>com.apple.security.device.audio-input</key>
+	<true/>
+</dict>
+</plist>
