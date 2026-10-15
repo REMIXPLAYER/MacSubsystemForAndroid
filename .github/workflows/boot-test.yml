@@ -52,9 +52,9 @@ jobs:
           CONFIG=$(find image -name 'config.plist' | head -1)
           CODE=$(ls /usr/share/qemu/edk2-aarch64-code.fd /usr/share/AAVMF/AAVMF_CODE.no-secboot.fd /usr/share/AAVMF/AAVMF_CODE.fd 2>/dev/null | head -1)
           mkdir -p vm
-          cp "$DATA/efi_vars.fd" vm/efi_vars.fd
-          echo "efi_vars.fd: $(stat -c %s vm/efi_vars.fd) bytes; firmware $CODE: $(stat -c %s "$CODE") bytes"
-          truncate -s "$(stat -c %s "$CODE")" vm/efi_vars.fd
+          cp "$DATA/efi_vars.fd" vm/efi_vars.fd; cp -L "$CODE" vm/code.fd; CODE=vm/code.fd
+          echo "efi_vars.fd: $(stat -L -c %s vm/efi_vars.fd) bytes; firmware $CODE: $(stat -L -c %s "$CODE") bytes"
+          truncate -s "$(stat -L -c %s "$CODE")" vm/efi_vars.fd
 
           # Disks in the order UTM's config lists them, as copy-on-write overlays (like the app).
           DISKS=$(grep -o '<string>[^<]*\.qcow2</string>' "$CONFIG" | sed 's/<[^>]*>//g' | awk '!s[$0]++')
