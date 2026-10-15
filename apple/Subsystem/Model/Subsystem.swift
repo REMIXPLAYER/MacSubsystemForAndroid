@@ -371,7 +371,8 @@ final class Subsystem: ObservableObject {
         } else if case .failed = state {
             publishStatus()
         } else {
-            setState(.failed("Android stopped unexpectedly (QEMU exit code \(code)). The log is in Settings › Advanced."))
+            let reason = Self.lastQEMUError().map { "\n\($0)" } ?? ""
+            setState(.failed("Android stopped unexpectedly (QEMU exit code \(code)).\(reason)\nThe full log is in Settings › Advanced › Show Log."))
         }
         stopRequested = false
         StorageJanitor.shared.androidStopped()
@@ -536,6 +537,14 @@ final class Subsystem: ObservableObject {
                 }
             }
         }
+    }
+
+    /// The last error QEMU wrote to its log, to show with the failure.
+    static func lastQEMUError() -> String? {
+        guard let text = try? String(contentsOf: VirtualMachine.logURL, encoding: .utf8) else { return nil }
+        let lines = text.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        let line = lines.last { $0.localizedCaseInsensitiveContains("error") || $0.hasPrefix("qemu") } ?? lines.last
+        return line.map { String($0.prefix(300)) }
     }
 
     /// F-Droid, the open-source app store, offered during setup and in Settings › Apps.
