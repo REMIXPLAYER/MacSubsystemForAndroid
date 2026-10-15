@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - entry point of the app window host (AndroidAppHost).
+// Mac Android Subsystem - entry point of the app window host (AndroidAppHost).
 //
 // This executable is copied into every launcher bundle the Subsystem creates in
 // ~/Applications/Android Apps. The bundle's Info.plist says which Android app it

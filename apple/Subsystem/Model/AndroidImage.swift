@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the Android image (the "ROM").
+// Mac Android Subsystem - the Android image (the "ROM").
 //
 // The image is LineageOS's UTM package for its virtio_arm64only target
 // (UTM-VM-lineage-<version>-<date>-<type>-virtio_arm64only.zip, produced by
@@ -78,6 +78,8 @@ struct AndroidImage: Codable, Equatable, Sendable {
             let overlay = SubsystemPaths.vm.appendingPathComponent("disk\(index)-\(disk.name)")
             if !FileManager.default.fileExists(atPath: overlay.path) {
                 try Self.createOverlay(overlay, backedBy: base)
+            } else {
+                try Self.repointOverlay(overlay, to: base)
             }
             urls.append(overlay)
         }
@@ -118,6 +120,36 @@ struct AndroidImage: Codable, Equatable, Sendable {
         }
         // The first boot of a fresh image runs the setup steps again.
         UserDefaults.standard.removeObject(forKey: "firstBootDone")
+    }
+
+    /// Overlays record their base disk's absolute path. When the support folder
+    /// moved (the app was renamed), point them at the base's new location; the
+    /// base itself is unchanged, so only the header is rewritten (`rebase -u`).
+    private static func repointOverlay(_ overlay: URL, to base: URL) throws {
+        guard let qemuImg = VirtualMachine.qemuImg else { throw VirtualMachine.Failure.qemuMissing }
+        let info = Process()
+        info.executableURL = qemuImg
+        info.arguments = ["info", "--output=json", "-U", overlay.path]
+        let pipe = Pipe()
+        info.standardOutput = pipe
+        info.standardError = FileHandle.nullDevice
+        try info.run()
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        info.waitUntilExit()
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let backing = json["backing-filename"] as? String,
+              backing != base.path else { return }
+        let rebase = Process()
+        rebase.executableURL = qemuImg
+        rebase.arguments = ["rebase", "-u", "-F", "qcow2", "-b", base.path, overlay.path]
+        let errors = Pipe()
+        rebase.standardError = errors
+        rebase.standardOutput = errors
+        try rebase.run()
+        rebase.waitUntilExit()
+        guard rebase.terminationStatus == 0 else {
+            throw ImageError.overlay(String(decoding: errors.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self))
+        }
     }
 
     private static func createOverlay(_ overlay: URL, backedBy base: URL) throws {

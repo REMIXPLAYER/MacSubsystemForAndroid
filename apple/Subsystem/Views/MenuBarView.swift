@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the menu bar item: status, start/stop, performance mode,
+// Mac Android Subsystem - the menu bar item: status, start/stop, performance mode,
 // Always ready, open apps, settings and quit.
 // Licensed under the GNU General Public License v3 or later.
 
@@ -12,6 +12,9 @@ struct MenuBarView: View {
         Text(statusLine)
         if let detail = subsystem.state.detail {
             Text(detail)
+        }
+        if !subsystem.changesNeedingRestart.isEmpty {
+            Button("Restart Android to Apply Changes") { subsystem.restart() }
         }
         Divider()
 

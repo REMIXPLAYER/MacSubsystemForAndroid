@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the status file the Subsystem app keeps up to date.
+// Mac Android Subsystem - the status file the Subsystem app keeps up to date.
 //
 // Launchers are separate processes (one per Android app, so each gets its own
 // Dock icon), so they learn whether Android is up from this file rather than IPC.

@@ -53,7 +53,7 @@ jobs:
           make_latest: false
           body: |
             LineageOS ${{ inputs.branch }} for the virtio_arm64only VM target, built by rom/build-rom.sh.
-            Mac Subsystem for Android downloads this automatically; you can also pick the zip in Settings › Advanced › Use an Image File.
+            Mac Android Subsystem downloads this automatically; you can also pick the zip in Settings › Advanced › Use an Image File.
           files: ${{ env.ZIP }}
 
       - uses: actions/attest-build-provenance@v2

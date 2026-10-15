@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the GRUB settings of LineageOS's virtio images.
+// Mac Android Subsystem - the GRUB settings of LineageOS's virtio images.
 //
 // These images boot through GRUB, which adds kernel arguments from the variables in
 // a `grubenv` file on the FAT32 PERSIST partition (its Settings menu edits them).

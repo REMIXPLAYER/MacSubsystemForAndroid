@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Mac Subsystem for Android - the bridge app that runs inside Android.
+  Mac Android Subsystem - the bridge app that runs inside Android.
 
   It has no screen. The Mac reads from its content provider with
   `content read` (URI content://io.github.harkhowalia1.msa.bridge/PATH) over ADB:

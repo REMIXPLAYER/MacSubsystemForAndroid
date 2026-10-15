@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the subsystem itself: starts and stops Android, keeps
+// Mac Android Subsystem - the subsystem itself: starts and stops Android, keeps
 // the app list and launchers current, installs apps, relays notifications, and
 // publishes its state to status.json for the app windows.
 //
@@ -69,6 +69,40 @@ final class Subsystem: ObservableObject {
     @Published var notice: Notice?
     /// What the performance mode means right now (Smart changes it as conditions change).
     @Published private(set) var performanceLevel: PerformanceLevel?
+    /// The settings Android was started with, for the ones that only apply at start.
+    @Published private(set) var launchedWith: LaunchSettings?
+
+    /// Settings that are read only when Android starts.
+    struct LaunchSettings: Equatable {
+        var memoryMB: Int
+        var cpuCount: Int
+        var microphone: Bool
+        var showAndroidScreen: Bool
+
+        @MainActor init(_ settings: SubsystemSettings) {
+            memoryMB = settings.memoryMB
+            cpuCount = settings.cpuCount
+            microphone = settings.microphone
+            showAndroidScreen = settings.showAndroidScreen
+        }
+    }
+
+    /// Settings changed since Android started that take effect after a restart,
+    /// in words ("memory", "processor cores"). Empty when nothing is waiting.
+    var changesNeedingRestart: [String] {
+        guard let launched = launchedWith else { return [] }
+        switch state {
+        case .running, .starting: break
+        default: return []
+        }
+        let now = LaunchSettings(settings)
+        var changes: [String] = []
+        if now.memoryMB != launched.memoryMB { changes.append("memory") }
+        if now.cpuCount != launched.cpuCount { changes.append("processor cores") }
+        if now.microphone != launched.microphone { changes.append("microphone") }
+        if now.showAndroidScreen != launched.showAndroidScreen { changes.append("Android screen window") }
+        return changes
+    }
 
     let settings = SubsystemSettings.shared
     private var vm: VirtualMachine?
@@ -181,6 +215,7 @@ final class Subsystem: ObservableObject {
             return
         }
 
+        launchedWith = LaunchSettings(settings)
         let vm = VirtualMachine(configuration: configuration)
         vm.onExit = { [weak vm] code in
             Task { @MainActor in
@@ -253,6 +288,7 @@ final class Subsystem: ObservableObject {
             progress("Setting up Android for the first time…")
             AndroidSetup.firstBoot(adb)
         }
+        AndroidSetup.applyIdentity(adb)
         progress("Preparing apps…")
         try AndroidSetup.ensureBridge(adb)
         try AndroidSetup.ensureScrcpyServer(adb)
@@ -380,6 +416,7 @@ final class Subsystem: ObservableObject {
     private func vmExited(_ exited: VirtualMachine, code: Int32) {
         guard exited === vm else { return }
         vm = nil
+        launchedWith = nil
         adb?.close()
         adb = nil
         stopTimers()

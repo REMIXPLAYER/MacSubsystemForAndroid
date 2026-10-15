@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - Settings › Privacy: which Android apps may use the
+// Mac Android Subsystem - Settings › Privacy: which Android apps may use the
 // camera, microphone, location and other private data (AndroidPermissions.swift),
 // laid out like Privacy & Security on the Mac. Also the per-app sheet in Apps.
 // Licensed under the GNU General Public License v3 or later.
@@ -23,6 +23,7 @@ struct PrivacySettingsView: View {
                     }
                 } else {
                     Form {
+                        Section { PaneHeader(section: .privacy) }
                         Section {
                             ForEach(PrivacyCategory.allCases) { category in
                                 NavigationLink(value: category) {

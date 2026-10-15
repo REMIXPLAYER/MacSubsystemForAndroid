@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - an app installed in Android, as reported by the bridge app.
+// Mac Android Subsystem - an app installed in Android, as reported by the bridge app.
 // Licensed under the GNU General Public License v3 or later.
 
 import Foundation

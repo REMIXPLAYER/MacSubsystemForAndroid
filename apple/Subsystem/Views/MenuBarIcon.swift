@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the menu bar icon: a small Android robot head, drawn
+// Mac Android Subsystem - the menu bar icon: a small Android robot head, drawn
 // as a template image so it follows the menu bar's colour.
 //
 //   running             solid head

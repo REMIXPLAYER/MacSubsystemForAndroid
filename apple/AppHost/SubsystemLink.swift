@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - how an app window gets Android running.
+// Mac Android Subsystem - how an app window gets Android running.
 //
 // It opens the Subsystem app with msa://start (which boots Android if it is off,
 // and shows "Starting Android…" meanwhile), then waits for

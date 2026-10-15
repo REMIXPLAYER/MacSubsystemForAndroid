@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - keeps the Mac's list of Android apps in step with Android.
+// Mac Android Subsystem - keeps the Mac's list of Android apps in step with Android.
 //
 // Asks the bridge app for every launchable app (apps.json) and its icon, stores
 // them in Application Support, and makes, refreshes or removes the launchers in

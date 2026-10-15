@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - installs Android apps from the Mac.
+// Mac Android Subsystem - installs Android apps from the Mac.
 //
 //   .apk            streamed into `cmd package install -S <size>` (no copy on the device)
 //   .apks / .apkm   zip of split APKs (bundletool, APKMirror): one install session

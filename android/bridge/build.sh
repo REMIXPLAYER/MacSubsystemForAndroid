@@ -49,7 +49,7 @@ KEYSTORE="${BRIDGE_KEYSTORE:-${ROOT}/build/bridge.keystore}"
 if [ ! -f "${KEYSTORE}" ]; then
     keytool -genkeypair -keystore "${KEYSTORE}" -storepass android -keypass android \
         -alias bridge -keyalg RSA -keysize 2048 -validity 10000 \
-        -dname "CN=Mac Subsystem for Android bridge" >/dev/null
+        -dname "CN=Mac Android Subsystem bridge" >/dev/null
 fi
 "${BUILD_TOOLS}/apksigner" sign --ks "${KEYSTORE}" --ks-pass pass:"${BRIDGE_KEYSTORE_PASSWORD:-android}" \
     --ks-key-alias bridge --out "${OUT}" "${WORK}/aligned.apk"

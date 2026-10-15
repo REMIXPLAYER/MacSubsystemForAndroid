@@ -3,7 +3,7 @@
 ```
  Mac                                                            Android (VM)
 ┌──────────────────────────────────────────┐                  ┌──────────────────────────────┐
-│ Mac Subsystem for Android.app  (menu bar)    │   QEMU + HVF     │ LineageOS 24, virtio_arm64only│
+│ Mac Android Subsystem.app  (menu bar)    │   QEMU + HVF     │ LineageOS 24, virtio_arm64only│
 │  VirtualMachine ── qemu-system-aarch64 ──┼─────────────────▶│                              │
 │  Subsystem (state, timers, status.json)  │                  │ adbd :5555                   │
 │  AppCatalog / LauncherGenerator          │   ADB over TCP   │  ▲                           │
@@ -22,7 +22,7 @@
 
 ## Processes
 
-- **Mac Subsystem for Android.app** is an agent (`LSUIElement`) with a menu bar item. It owns QEMU, keeps one ADB connection, and writes `status.json` (off / starting / running / failed, the ADB port).
+- **Mac Android Subsystem.app** is an agent (`LSUIElement`) with a menu bar item. It owns QEMU, keeps one ADB connection, and writes `status.json` (off / starting / running / failed, the ADB port).
 - **Each Android app** has a launcher bundle in `~/Applications/Android Apps`. Its executable is a copy of `AndroidAppHost`; its `Info.plist` names the Android package (`MSAPackageName`). Separate processes give each Android app its own Dock icon, ⌘-Tab entry and menu bar.
 - **QEMU** runs as a child process of the Subsystem: `-machine virt -accel hvf -cpu host`, UEFI from `edk2-aarch64-code.fd`, virtio-blk disks, user-mode networking with `hostfwd=tcp:127.0.0.1:58526-:5555`, `intel-hda` through Core Audio, `-display none`.
 
@@ -99,7 +99,7 @@ The Mac reads them with `content read --uri content://io.github.harkhowalia1.msa
 ## Files
 
 ```
-~/Library/Application Support/Mac Subsystem for Android/
+~/Library/Application Support/Mac Android Subsystem/
     adbkey  status.json  apps.json  icons/
     rom/current.json  rom/<image>/LineageOS_on_ARM64.utm/{config.plist,Data/…}
     vm/disk0-….qcow2  vm/efi_vars.fd  vm/qemu.log  vm/console.log
@@ -113,3 +113,13 @@ The Mac reads them with `content read --uri content://io.github.harkhowalia1.msa
 - Camera, location and shared folders.
 - Close the Mac window when the Android app finishes its last activity.
 - Faster *As needed* starts with a saved VM snapshot.
+
+## Identity and renaming
+
+Android calls itself "Mac Android Subsystem (MAS)": QEMU's SMBIOS (`-smbios type=1/2`) sets the manufacturer and model Android reads at boot, and `settings put global device_name` / `secure bluetooth_name` set the device name on every boot (`AndroidSetup.applyIdentity`). The name comes from `APP_NAME` and `APP_SHORT_NAME` in `apple/Config/Base.xcconfig`.
+
+When the app is renamed, `SubsystemPaths.support` moves the folder from any name in `LEGACY_SUPPORT_FOLDERS`, `AndroidImage.runtimeDisks` repoints the qcow2 overlays at their base disks' new path (`qemu-img rebase -u`, header only), and `RenameMigration` moves the old copy of the app (same bundle identifier and URL scheme) to the Trash and renews the login item. Launchers are rebuilt because their generation includes the app version.
+
+## Settings that apply at start
+
+`Subsystem.launchedWith` records the memory, processor cores, microphone and Android-screen settings Android was started with; `changesNeedingRestart` lists those that differ now. The settings window shows a banner with *Restart Now* and the menu bar menu shows *Restart Android to Apply Changes* while the list isn't empty.

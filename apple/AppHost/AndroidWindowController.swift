@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - one Mac window for one Android app.
+// Mac Android Subsystem - one Mac window for one Android app.
 //
 // Each launcher in ~/Applications/Android Apps runs its own copy of this host,
 // so every Android app has its own Dock icon, ⌘-Tab entry and menu bar.

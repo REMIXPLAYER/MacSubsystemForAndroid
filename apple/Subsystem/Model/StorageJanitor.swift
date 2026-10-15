@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - keeps the Subsystem's disk use down by itself.
+// Mac Android Subsystem - keeps the Subsystem's disk use down by itself.
 //
 // Light clean-up (on launch, every 6 hours, after Android turns off):
 //   * finished or abandoned downloads (Android images, F-Droid), unpacking leftovers,

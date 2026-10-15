@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - what happens after Android boots.
+// Mac Android Subsystem - what happens after Android boots.
 //
 //  1. Wait for sys.boot_completed.
 //  2. First boot only: mark the device as set up (no setup wizard on a display
@@ -75,6 +75,24 @@ enum AndroidSetup {
             Thread.sleep(forTimeInterval: 1)
         }
         throw Failure.bootTimeout
+    }
+
+    /// Android's device name: Settings › About, Bluetooth and other devices see
+    /// "Mac Android Subsystem (MAS)" rather than the virtual machine's model.
+    /// Applied on every boot so a rename reaches existing installs too.
+    static func applyIdentity(_ adb: ADBConnection) {
+        let name = shellQuoted(AppConfig.deviceName)
+        for command in [
+            "settings put global device_name \(name)",
+            "settings put secure bluetooth_name \(name)",
+            "cmd bluetooth_manager set-name \(name) >/dev/null 2>&1 || true",
+        ] {
+            _ = try? adb.exec(command, timeout: 10)
+        }
+    }
+
+    static func shellQuoted(_ value: String) -> String {
+        "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }
 
     static func firstBoot(_ adb: ADBConnection) {

@@ -38,7 +38,7 @@ if command -v apt-get >/dev/null; then
         squashfs-tools xsltproc zip zlib1g-dev python-is-python3 python3-yaml qemu-utils \
         glslang-tools python3-mako meson
 fi
-git config --global user.name >/dev/null || git config --global user.name "Mac Subsystem for Android"
+git config --global user.name >/dev/null || git config --global user.name "Mac Android Subsystem"
 git config --global user.email >/dev/null || git config --global user.email "build@localhost"
 git config --global color.ui false
 git lfs install

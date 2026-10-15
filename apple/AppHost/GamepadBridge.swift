@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - Mac game controllers in Android games.
+// Mac Android Subsystem - Mac game controllers in Android games.
 //
 // Any controller macOS supports (Xbox, PlayStation, Switch Pro, MFi...) is
 // re-created inside Android as a virtual HID gamepad through scrcpy's UHID

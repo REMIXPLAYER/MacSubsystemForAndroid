@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - keeps Android's active notifications for the Mac.
+// Mac Android Subsystem - keeps Android's active notifications for the Mac.
 //
 // The Mac grants this listener with
 //   cmd notification allow_listener io.github.harkhowalia1.msa.bridge/.NotificationRelayService

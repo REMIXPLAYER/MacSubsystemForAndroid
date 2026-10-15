@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Draw the Mac Subsystem for Android icon (a Mac window holding the Android
+"""Draw the Mac Android Subsystem icon (a Mac window holding the Android
 robot's head) and write every size the asset catalog, the DMG and the website need.
 
     python3 apple/icon/make_icons.py

@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the settings window: System, Performance, Apps, Privacy,
+// Mac Android Subsystem - the settings window: System, Performance, Apps, Privacy,
 // Files, Storage, Advanced, About.
 // Licensed under the GNU General Public License v3 or later.
 
@@ -51,23 +51,13 @@ struct SettingsRootView: View {
                 SetupView()
             } else {
                 NavigationSplitView {
-                    List(SettingsSection.allCases, selection: Binding(
-                        get: { navigation.section },
-                        set: { if let value = $0 { navigation.section = value } })) { section in
-                        Label(section.title, systemImage: section.symbol).tag(section)
-                    }
-                    .navigationSplitViewColumnWidth(min: 170, ideal: 190)
+                    SettingsSidebar(selection: $navigation.section)
                 } detail: {
-                    switch navigation.section {
-                    case .system: SystemSettingsView()
-                    case .performance: PerformanceSettingsView()
-                    case .apps: AppsSettingsView()
-                    case .privacy: PrivacySettingsView()
-                    case .files: FilesSettingsView()
-                    case .storage: StorageSettingsView()
-                    case .advanced: AdvancedSettingsView()
-                    case .about: AboutView()
+                    VStack(spacing: 0) {
+                        RestartBanner()
+                        pane
                     }
+                    .animation(.default, value: subsystem.changesNeedingRestart)
                 }
             }
         }
@@ -83,6 +73,18 @@ struct SettingsRootView: View {
         }
         .frame(minWidth: 700, minHeight: 480)
     }
+    @ViewBuilder private var pane: some View {
+        switch navigation.section {
+        case .system: SystemSettingsView()
+        case .performance: PerformanceSettingsView()
+        case .apps: AppsSettingsView()
+        case .privacy: PrivacySettingsView()
+        case .files: FilesSettingsView()
+        case .storage: StorageSettingsView()
+        case .advanced: AdvancedSettingsView()
+        case .about: AboutView()
+        }
+    }
 }
 
 // MARK: - System
@@ -93,6 +95,7 @@ struct SystemSettingsView: View {
 
     var body: some View {
         Form {
+            Section { PaneHeader(section: .system) }
             Section {
                 StatusCard()
             }
@@ -208,6 +211,7 @@ struct PerformanceSettingsView: View {
 
     var body: some View {
         Form {
+            Section { PaneHeader(section: .performance) }
             Section {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                     ForEach(PerformanceMode.allCases) { mode in
@@ -321,6 +325,8 @@ struct AppsSettingsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            PaneHeader(section: .apps)
+                .padding(.vertical, 10)
             if subsystem.apps.isEmpty {
                 ContentUnavailableView {
                     Label("No Android apps yet", systemImage: "square.grid.2x2")
@@ -439,6 +445,7 @@ struct FilesSettingsView: View {
 
     var body: some View {
         Form {
+            Section { PaneHeader(section: .files) }
             Section {
                 VStack(spacing: 12) {
                     Image(systemName: "arrow.down.doc")
@@ -487,6 +494,7 @@ struct StorageSettingsView: View {
 
     var body: some View {
         Form {
+            Section { PaneHeader(section: .storage) }
             Section {
                 UsageBar(usage: janitor.usage)
                     .padding(.vertical, 6)
@@ -576,6 +584,7 @@ struct AdvancedSettingsView: View {
 
     var body: some View {
         Form {
+            Section { PaneHeader(section: .advanced) }
             Section {
                 Toggle("Developer mode", isOn: $settings.developerMode)
                 if settings.developerMode {
@@ -671,19 +680,24 @@ struct AboutView: View {
     var body: some View {
         Form {
             Section {
-                HStack(spacing: 16) {
+                VStack(spacing: 6) {
                     Image(nsImage: NSApp.applicationIconImage)
                         .resizable()
-                        .frame(width: 72, height: 72)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(AppConfig.displayName).font(.title2.weight(.semibold))
-                        Text("Version \(AppConfig.version)").foregroundStyle(.secondary)
-                        if let version = subsystem.androidVersion {
-                            Text(version).foregroundStyle(.secondary)
-                        }
-                    }
+                        .frame(width: 96, height: 96)
+                    Text(AppConfig.displayName).font(.title.weight(.semibold))
+                    Text("Version \(AppConfig.version)").foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+            }
+            Section {
+                LabeledContent("Device name", value: AppConfig.deviceName)
+                if let version = subsystem.androidVersion {
+                    LabeledContent("Android", value: version)
+                } else if let image = subsystem.image {
+                    LabeledContent("Android image", value: image.displayName)
+                }
+                LabeledContent("Mac app", value: "Version \(AppConfig.version)")
             }
             Section {
                 Link("Source code (GPLv3)", destination: AppConfig.repositoryURL)

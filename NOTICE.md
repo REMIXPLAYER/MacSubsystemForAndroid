@@ -1,6 +1,6 @@
 # Notices
 
-Mac Subsystem for Android is free software under the GNU General Public License v3 or later (see LICENSE).
+Mac Android Subsystem is free software under the GNU General Public License v3 or later (see LICENSE).
 
 It includes or downloads the following software, each under its own licence:
 

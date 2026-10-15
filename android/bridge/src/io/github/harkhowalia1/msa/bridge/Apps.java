@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the list of launchable apps and their icons.
+// Mac Android Subsystem - the list of launchable apps and their icons.
 // Licensed under the GNU General Public License v3 or later.
 
 package io.github.harkhowalia1.msa.bridge;

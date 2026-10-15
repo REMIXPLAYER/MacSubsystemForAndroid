@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - which Android apps may use the camera, microphone,
+// Mac Android Subsystem - which Android apps may use the camera, microphone,
 // location and other private data, like Privacy & Security on the Mac.
 //
 // Android's runtime permissions are grouped the way Android's own settings group

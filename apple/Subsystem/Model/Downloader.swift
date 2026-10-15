@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - a file download with progress, for the Android image and F-Droid.
+// Mac Android Subsystem - a file download with progress, for the Android image and F-Droid.
 // Licensed under the GNU General Public License v3 or later.
 
 import Foundation

@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - Android notifications as macOS notifications.
+// Mac Android Subsystem - Android notifications as macOS notifications.
 //
 // The bridge app's NotificationListenerService keeps the active notifications;
 // the Mac reads them (notifications.json) every few seconds, posts new ones with

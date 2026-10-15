@@ -9,13 +9,20 @@ import Foundation
 
 enum AppConfig {
     /// Name shown in the menu bar, settings window and notifications.
-    static let displayName: String = info("MSADisplayName") ?? "Mac Subsystem for Android"
+    static let displayName: String = info("MSADisplayName") ?? "Mac Android Subsystem"
+    /// Short name, as in "Mac Android Subsystem (MAS)".
+    static let shortName: String = info("MSAShortName") ?? "MAS"
+    /// Android's device name (Settings › About, Bluetooth, the model QEMU reports).
+    static var deviceName: String { "\(displayName) (\(shortName))" }
     /// Bundle identifier of the Subsystem app (also known inside launchers).
     static let subsystemBundleID: String = info("MSASubsystemBundleID") ?? "io.github.harkhowalia1.msa"
     /// URL scheme handled by the Subsystem app: msa://start, msa://open?package=...
     static let urlScheme: String = info("MSAURLScheme") ?? "msa"
     /// Folder name under ~/Library/Application Support and ~/Applications.
-    static let supportFolderName: String = info("MSASupportFolder") ?? "Mac Subsystem for Android"
+    static let supportFolderName: String = info("MSASupportFolder") ?? "Mac Android Subsystem"
+    /// Earlier support folder names, moved to supportFolderName on first launch.
+    static let legacySupportFolderNames: [String] = (info("MSALegacySupportFolders") ?? "Mac Subsystem for Android")
+        .split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
     static let launcherFolderName: String = info("MSALauncherFolder") ?? "Android Apps"
     static let version: String = info("CFBundleShortVersionString") ?? "0"
     static let repository: String = info("MSARepository") ?? "harkhowalia-1/MacSubsystemForAndroid"

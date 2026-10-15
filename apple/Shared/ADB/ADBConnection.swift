@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - a small ADB client speaking the wire protocol directly
+// Mac Android Subsystem - a small ADB client speaking the wire protocol directly
 // to adbd over TCP (no adb server, no adb binary).
 //
 // Messages are a 24-byte little-endian header plus payload:

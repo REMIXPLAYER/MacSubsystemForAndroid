@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the settings (System, Performance, Apps, Files,
+// Mac Android Subsystem - the settings (System, Performance, Apps, Files,
 // Storage, Advanced).
 //
 // Stored in the Subsystem's UserDefaults; app windows read showSoftKeyboard and

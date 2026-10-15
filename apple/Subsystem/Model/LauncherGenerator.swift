@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - a real Mac app for every Android app.
+// Mac Android Subsystem - a real Mac app for every Android app.
 //
 // Each Android app becomes ~/Applications/Android Apps/<App>.app, which Launchpad, Spotlight
 // and the Dock treat like any other app:
@@ -96,7 +96,7 @@ enum LauncherGenerator {
             "MSALauncherGeneration": generation,
         ]
         // The window host reads the Subsystem's settings from its own Info.plist.
-        for key in ["MSADisplayName", "MSASubsystemBundleID", "MSAURLScheme", "MSASupportFolder",
+        for key in ["MSADisplayName", "MSAShortName", "MSALegacySupportFolders", "MSASubsystemBundleID", "MSAURLScheme", "MSASupportFolder",
                     "MSALauncherFolder", "MSAScrcpyVersion", "MSAADBPort", "MSARepository", "MSAWebsiteURL"] {
             if let value = Bundle.main.object(forInfoDictionaryKey: key) { info[key] = value }
         }

@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the app: a menu bar item plus the settings window,
+// Mac Android Subsystem - the app: a menu bar item plus the settings window,
 // keeping Android running in the background.
 //
 // It opens:
@@ -52,6 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        RenameMigration.run()
         NotificationRelay.shared.requestPermission()
         StorageJanitor.shared.startSchedule()
         let subsystem = Subsystem.shared

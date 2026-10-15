@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - applies the performance mode while Android runs.
+// Mac Android Subsystem - applies the performance mode while Android runs.
 //
 // Levers, all adjustable live without restarting Android:
 //   CPU      Android takes processor cores online/offline (CPU hotplug through

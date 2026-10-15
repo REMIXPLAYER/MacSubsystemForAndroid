@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - a tiny client for QEMU's QMP monitor (JSON over a Unix
+// Mac Android Subsystem - a tiny client for QEMU's QMP monitor (JSON over a Unix
 // socket), used to resize the memory balloon while Android runs.
 //
 //   <- {"QMP": {...}}                      greeting

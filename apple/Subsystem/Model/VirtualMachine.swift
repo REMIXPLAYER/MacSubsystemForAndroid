@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - runs Android in QEMU with Apple's Hypervisor framework.
+// Mac Android Subsystem - runs Android in QEMU with Apple's Hypervisor framework.
 //
 // Android (LineageOS's virtio_arm64only target, made for QEMU and UTM) runs as a
 // headless arm64 VM at near-native speed. Nobody looks at its main display: each
@@ -57,6 +57,9 @@ final class VirtualMachine: @unchecked Sendable {
 
     /// QEMU bundled in Contents/Helpers, or Homebrew's for development builds.
     static var qemuSystem: URL? { helper("qemu-system-aarch64") }
+    /// QEMU option values escape commas by doubling them.
+    static func smbios(_ value: String) -> String { value.replacingOccurrences(of: ",", with: ",,") }
+
     static var qemuImg: URL? { helper("qemu-img") }
 
     private static func helper(_ name: String) -> URL? {
@@ -130,6 +133,9 @@ final class VirtualMachine: @unchecked Sendable {
         var args: [String] = [
             "-name", AppConfig.displayName,
             "-machine", "virt",
+            // What Android reports as the manufacturer and model (instead of "QEMU Virtual Machine").
+            "-smbios", "type=1,manufacturer=\(Self.smbios(AppConfig.displayName)),product=\(Self.smbios(AppConfig.deviceName)),family=\(Self.smbios(AppConfig.shortName)),version=\(Self.smbios(AppConfig.version))",
+            "-smbios", "type=2,manufacturer=\(Self.smbios(AppConfig.displayName)),product=\(Self.smbios(AppConfig.deviceName))",
             "-accel", "hvf",
             "-cpu", "host",
             "-smp", "\(c.cpuCount)",

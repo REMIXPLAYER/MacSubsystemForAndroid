@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - Mac keyboard to Android key events.
+// Mac Android Subsystem - Mac keyboard to Android key events.
 //
 // Printable characters are sent as text (scrcpy's INJECT_TEXT), so every Mac
 // keyboard layout and dead key works. Everything else (arrows, Return, Delete,

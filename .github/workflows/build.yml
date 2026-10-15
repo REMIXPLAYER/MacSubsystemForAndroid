@@ -122,12 +122,12 @@ jobs:
           NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
           NOTARY_TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
           NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
-        run: scripts/package-mac.sh "$PWD/build/Release/Mac Subsystem for Android.app" "$GITHUB_WORKSPACE/MacSubsystemForAndroid.dmg"
+        run: scripts/package-mac.sh "$PWD/build/Release/Mac Android Subsystem.app" "$GITHUB_WORKSPACE/MacAndroidSubsystem.dmg"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MacSubsystemForAndroid-${{ env.VERSION }}
-          path: MacSubsystemForAndroid.dmg
+          name: MacAndroidSubsystem-${{ env.VERSION }}
+          path: MacAndroidSubsystem.dmg
 
       - name: Publish release
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
@@ -135,11 +135,11 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           target_commitish: ${{ github.sha }}
-          name: Mac Subsystem for Android ${{ env.VERSION }}
+          name: Mac Android Subsystem ${{ env.VERSION }}
           prerelease: ${{ startsWith(env.VERSION, '0.') }}
           make_latest: true
           overwrite_files: true
           generate_release_notes: true
           body: |
-            **Mac (Apple silicon, macOS 15+):** open `MacSubsystemForAndroid.dmg` and drag Mac Subsystem for Android to Applications. On first launch it downloads Android (LineageOS) for you.
-          files: MacSubsystemForAndroid.dmg
+            **Mac (Apple silicon, macOS 15+):** open `MacAndroidSubsystem.dmg` and drag Mac Android Subsystem to Applications. On first launch it downloads Android (LineageOS) for you.
+          files: MacAndroidSubsystem.dmg

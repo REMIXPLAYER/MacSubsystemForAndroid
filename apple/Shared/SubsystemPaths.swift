@@ -1,6 +1,6 @@
-// Mac Subsystem for Android - where everything lives on disk.
+// Mac Android Subsystem - where everything lives on disk.
 //
-//   ~/Library/Application Support/Mac Subsystem for Android/
+//   ~/Library/Application Support/Mac Android Subsystem/
 //       adbkey                 RSA key the Mac uses to talk to Android (shared by all launchers)
 //       status.json            written by the Subsystem app, read by launchers
 //       apps.json, icons/      installed Android apps, synced from the bridge app
@@ -15,7 +15,20 @@ import Foundation
 enum SubsystemPaths {
     static var support: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        return ensure(base.appendingPathComponent(AppConfig.supportFolderName, isDirectory: true))
+        let folder = base.appendingPathComponent(AppConfig.supportFolderName, isDirectory: true)
+        migrateLegacySupport(to: folder, in: base)
+        return ensure(folder)
+    }
+
+    /// The app was renamed: carry Android, its disks and settings over from the
+    /// folder an earlier name used, the first time the new folder is needed.
+    private static func migrateLegacySupport(to folder: URL, in base: URL) {
+        let fm = FileManager.default
+        guard !fm.fileExists(atPath: folder.path) else { return }
+        for name in AppConfig.legacySupportFolderNames where name != AppConfig.supportFolderName {
+            let legacy = base.appendingPathComponent(name, isDirectory: true)
+            if fm.fileExists(atPath: legacy.path), (try? fm.moveItem(at: legacy, to: folder)) != nil { return }
+        }
     }
 
     static var adbKey: URL { support.appendingPathComponent("adbkey") }

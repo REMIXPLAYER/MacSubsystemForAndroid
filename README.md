@@ -1,9 +1,10 @@
-# Mac Subsystem for Android
+# Mac Android Subsystem (MAS)
 
 **Android apps, at home on your Mac.** Every Android app gets its own window, its own Dock icon and a place in Launchpad and Spotlight, with notifications, copy and paste, and game controllers.
 
 Double-click an `.apk` and the app installs and opens. Android (LineageOS 24, Android 17, no Google apps) runs in the background with Apple's Hypervisor framework.
 
+- **Mac Android Subsystem (MAS)** is also what Android calls itself: the device name in Android's settings, Bluetooth and the model it reports.
 - **Always Ready**: start with the Mac and keep Android running, so apps open instantly. The menu bar item has status, start/stop, performance modes, your apps, Settings and Quit.
 - **Performance modes**, applied live (CPU cores, memory, scheduling, Android's power settings, frame rate):
   - **Power Saver**: a hybrid of saving power and Smart. Android only runs while an Android app is open (it turns off 30 s after the last one closes) and, while it runs, saves power unless the app in front can have a little more.
@@ -31,7 +32,7 @@ Double-click an `.apk` and the app installs and opens. Android (LineageOS 24, An
 | USB debugging | Developer mode, ADB at `127.0.0.1:58526` |
 | A phone's hardware | Android (LineageOS `virtio_arm64only`) in QEMU with Apple's Hypervisor framework |
 
-The menu bar item and the Settings window hold the rest: Always Ready, what happens when the last app closes (*Automatic*, *As needed*, *Continuous*), performance modes, storage, files, developer mode and reset.
+The menu bar item and the Settings window hold the rest: Always Ready, what happens when the last app closes (*Automatic*, *As needed*, *Continuous*), performance modes, privacy, storage, files, developer mode and reset. The Settings window is laid out like the Mac's System Settings, with a searchable sidebar, and when a setting that applies at start changes (memory, processor cores, microphone) it offers to restart Android.
 
 ## Requirements
 
@@ -48,7 +49,7 @@ A Mac with Apple silicon and macOS 15 or later. Android uses a quarter of your m
 | `rom/build-rom.sh` | Builds the Android image (LineageOS for `virtio_arm64only`, ADB without the authorization prompt). |
 | `core/scripts/` | `bundle-qemu.sh` (QEMU into the app), `fetch-scrcpy-server.sh` (checksum-verified). |
 | `site/` | The website. |
-| `.github/workflows/` | `build.yml` builds the bridge and the app and publishes `MacSubsystemForAndroid.dmg`; `rom.yml` builds and publishes the Android image; `pages.yml` publishes the website. |
+| `.github/workflows/` | `build.yml` builds the bridge and the app and publishes `MacAndroidSubsystem.dmg`; `rom.yml` builds and publishes the Android image; `pages.yml` publishes the website. |
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the pieces fit together.
 
@@ -74,7 +75,7 @@ Run the **Build Android image** workflow (on a self-hosted Linux runner: about 3
 
 ### Releases
 
-Push to `main` with a new number in `VERSION`. The *Build app* workflow publishes the release `v<VERSION>` with `MacSubsystemForAndroid.dmg`.
+Push to `main` with a new number in `VERSION`. The *Build app* workflow publishes the release `v<VERSION>` with `MacAndroidSubsystem.dmg`.
 
 For a Mac build that opens without the right-click step, add these repository secrets: `MAC_CERT_P12` (base64 Developer ID Application certificate), `MAC_CERT_PASSWORD`, `MAC_SIGN_IDENTITY`, and for notarization `NOTARY_APPLE_ID`, `NOTARY_TEAM_ID`, `NOTARY_PASSWORD`. Add `BRIDGE_KEYSTORE_B64` and `BRIDGE_KEYSTORE_PASSWORD` to sign the bridge app with a fixed key.
 

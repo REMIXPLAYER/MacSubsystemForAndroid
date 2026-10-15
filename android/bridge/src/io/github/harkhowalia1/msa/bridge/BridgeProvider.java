@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - serves the Mac's requests as files.
+// Mac Android Subsystem - serves the Mac's requests as files.
 // Licensed under the GNU General Public License v3 or later.
 
 package io.github.harkhowalia1.msa.bridge;

@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - turns scrcpy's Annex-B H.264 packets into CMSampleBuffers
+// Mac Android Subsystem - turns scrcpy's Annex-B H.264 packets into CMSampleBuffers
 // for AVSampleBufferDisplayLayer, which decodes them in hardware.
 //
 // Config packets carry SPS and PPS; they become the format description. Frames

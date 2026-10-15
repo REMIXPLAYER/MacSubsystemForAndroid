@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the RSA key the Mac uses to authenticate to adbd.
+// Mac Android Subsystem - the RSA key the Mac uses to authenticate to adbd.
 //
 // adbd sends a 20-byte token; the host signs it with RSA PKCS#1 v1.5 treating the
 // token as a SHA-1 digest (Security's .rsaSignatureDigestPKCS1v15SHA1 does exactly

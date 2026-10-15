@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - minimal streaming .zip extractor.
+// Mac Android Subsystem - minimal streaming .zip extractor.
 //
 // macOS has no public unzip API, and Android images hold disks of several hundred
 // MB to GBs, so this reads the central directory and inflates each entry in 1 MB chunks

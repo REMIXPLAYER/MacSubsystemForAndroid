@@ -1,7 +1,7 @@
 #!/bin/bash
 # Sign the app (inside out) and wrap it in a DMG.
 #
-#   apple/scripts/package-mac.sh "<path/to/Mac Subsystem for Android.app>" <output.dmg>
+#   apple/scripts/package-mac.sh "<path/to/Mac Android Subsystem.app>" <output.dmg>
 #
 # Without secrets everything is signed ad hoc (people right-click › Open the first
 # time). With these environment variables it is signed with Developer ID and

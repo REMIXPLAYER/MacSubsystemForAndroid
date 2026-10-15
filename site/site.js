@@ -1,4 +1,4 @@
-// Mac Subsystem for Android website: menu bar clock, the performance-mode explorer,
+// Mac Android Subsystem website: menu bar clock, the performance-mode explorer,
 // and download links from the latest release.
 (() => {
   const repo = "__REPO__";

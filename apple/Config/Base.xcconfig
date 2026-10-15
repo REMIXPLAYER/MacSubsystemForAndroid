@@ -1,6 +1,10 @@
 // Mac Subsystem for Android - settings shared by every target. Rename the app here.
 
-APP_NAME = Mac Subsystem for Android
+APP_NAME = Mac Android Subsystem
+// Short name: Android's device name is "$(APP_NAME) ($(APP_SHORT_NAME))".
+APP_SHORT_NAME = MAS
+// Earlier names of the app's folder in ~/Library/Application Support, moved on first launch.
+LEGACY_SUPPORT_FOLDERS = Mac Subsystem for Android
 BUNDLE_ID = io.github.harkhowalia1.msa
 URL_SCHEME = msa
 // Folder in ~/Applications that holds one Mac app per Android app.

@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - adb's file sync protocol ("sync:" service), enough to
+// Mac Android Subsystem - adb's file sync protocol ("sync:" service), enough to
 // push files and check whether a file is already there.
 //
 //   STAT <path>               -> STAT mode:u32 size:u32 mtime:u32

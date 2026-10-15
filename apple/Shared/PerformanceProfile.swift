@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - performance modes.
+// Mac Android Subsystem - performance modes.
 //
 //   Power Saver   Android only runs while an Android app is open (it turns off
 //                 30 s after the last one closes; see Subsystem.idleShutdownDelay).

@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - one Android app in its own virtual display, streamed
+// Mac Android Subsystem - one Android app in its own virtual display, streamed
 // with the scrcpy server (scrcpy 5.0.1, Apache 2.0, bundled as scrcpy-server.jar).
 //
 // The server runs inside Android with app_process. In tunnel_forward mode it

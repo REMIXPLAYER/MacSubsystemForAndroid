@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - the view that shows one Android app's virtual display
+// Mac Android Subsystem - the view that shows one Android app's virtual display
 // and turns Mac input into Android input.
 //
 // Mouse: left button = finger touch (scrcpy maps the "mouse" pointer with only the

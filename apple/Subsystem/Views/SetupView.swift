@@ -1,4 +1,4 @@
-// Mac Subsystem for Android - first run: get the Android image.
+// Mac Android Subsystem - first run: get the Android image.
 // Licensed under the GNU General Public License v3 or later.
 
 import AppKit
