@@ -7,10 +7,11 @@ Double-click an `.apk` and the app installs and opens. Android (LineageOS 24, An
 - **Always Ready**: start with the Mac and keep Android running, so apps open instantly. The menu bar item has status, start/stop, performance modes, your apps, Settings and Quit.
 - **Performance modes**, applied live (CPU cores, memory, scheduling, Android's power settings, frame rate):
   - **Power Saver**: a hybrid of saving power and Smart. Android only runs while an Android app is open (it turns off 30 s after the last one closes) and, while it runs, saves power unless the app in front can have a little more.
-  - **Smart** (default): stays ready in the background and adapts all the time; it drops to saving power whenever other Mac apps need the processor or memory, the battery is low, Low Power Mode is on or the Mac is hot.
-  - **Performance**: maximum performance, all the time.
-  - **Gaming**: maximum performance optimized for games (Android's game and fixed-performance modes, up to 120 fps, lower latency).
+  - **Smart** (default): stays ready in the background and adapts all the time; it drops to saving power whenever other Mac apps need the processor or memory, the battery is low, Low Power Mode is on or the Mac is hot (to Balanced while an Android app is in front, so it stays usable).
+  - **Standard**: Android runs as it is, with nothing tuned (every core, all its memory, its own power settings, 60 fps windows), and stays ready.
+  - **Performance**: maximum performance, all the time, tuned for games too (Android's game and fixed-performance modes, up to 120 fps, lower latency).
 - **Game controllers**: any controller macOS supports appears in Android games as a standard gamepad.
+- **Privacy**: like Privacy & Security on the Mac, Settings › Privacy lists which Android apps asked for the camera, microphone, location, contacts and more, and lets you turn each one on or off.
 - **Never in the way**: the Subsystem cleans up its own downloads, leftovers, logs and Android's unused disk space.
 
 **Website and downloads:** https://harkhowalia-1.github.io/MacSubsystemForAndroid (`.github/workflows/pages.yml` publishes `site/` to the `gh-pages` branch; GitHub Pages serves that branch: Settings › Pages › Deploy from a branch › `gh-pages`, `/ (root)`).
@@ -26,6 +27,7 @@ Double-click an `.apk` and the app installs and opens. Android (LineageOS 24, An
 | Notification shade | macOS notifications (click opens the app) |
 | An app store | F-Droid, one click during setup or in Settings › Apps, or double-click any APK |
 | Gamepads | Any macOS controller, forwarded as a virtual HID gamepad to the Android window in front |
+| App permissions | Settings › Privacy, one switch per app per category (Android's runtime permissions) |
 | USB debugging | Developer mode, ADB at `127.0.0.1:58526` |
 | A phone's hardware | Android (LineageOS `virtio_arm64only`) in QEMU with Apple's Hypervisor framework |
 
@@ -68,7 +70,7 @@ Run the **Subsystem** scheme. On first launch it downloads the Android image; or
 
 ### The Android image
 
-Run the **Build Android image** workflow (on a self-hosted Linux runner: about 300 GB of disk, 32 GB of RAM, several hours) or `rom/build-rom.sh` directly. It publishes `UTM-VM-lineage-24.0-…-virtio_arm64only.zip` as a release, and the app's *Download Android* picks the newest one. Until there is one, the app falls back to [jqssun/android-lineage-qemu](https://github.com/jqssun/android-lineage-qemu)'s builds (their images ask to allow ADB once; the app shows Android's screen for that).
+Run the **Build Android image** workflow (on a self-hosted Linux runner: about 300 GB of disk, 32 GB of RAM, several hours) or `rom/build-rom.sh` directly. It publishes `UTM-VM-lineage-24.0-…-virtio_arm64only.zip` as a release, and the app's *Download Android* picks the newest one. Until there is one, the app falls back to [jqssun/android-lineage-qemu](https://github.com/jqssun/android-lineage-qemu)'s builds (they're Android 16 user builds, whose ADB is stuck in trade-in mode until Android is set up, so the app turns on their GRUB *Insecure ADB* setting: ADB works without a prompt, and Android reports itself debuggable).
 
 ### Releases
 

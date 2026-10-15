@@ -67,12 +67,11 @@
           </div>
           <div class="tray-menu" aria-hidden="true">
             <div class="item">Android: Running · Smart</div>
-            <div class="item dim">Game in front: Gaming level</div>
+            <div class="item dim">App in front: Performance level</div>
             <hr>
             <div class="item"><span class="check"></span>Power Saver</div>
             <div class="item on"><span class="check">✓</span>Smart</div>
             <div class="item"><span class="check"></span>Performance</div>
-            <div class="item"><span class="check"></span>Gaming</div>
             <hr>
             <div class="item"><span class="check">✓</span>Always Ready</div>
             <div class="item"><span class="check"></span>Quit Mac Subsystem for Android</div>
@@ -131,6 +130,7 @@
           <div class="card"><div class="glyph"><svg><use href="#i-bell"/></svg></div><h3>Notifications</h3><p>Android notifications land in Notification Centre. Click one and the app opens in its window.</p></div>
           <div class="card"><div class="glyph"><svg><use href="#i-clip"/></svg></div><h3>Copy and paste</h3><p>Copy in Android, paste on the Mac, and the other way around. Your Mac keyboard and layout just work.</p></div>
           <div class="card"><div class="glyph"><svg><use href="#i-pad"/></svg></div><h3>Game controllers</h3><p>Connect an Xbox, PlayStation or Switch controller to your Mac and Android games pick it up automatically.</p></div>
+          <div class="card"><div class="glyph"><svg><use href="#i-window"/></svg></div><h3>Privacy controls</h3><p>See which apps asked for your camera, microphone, location, contacts and more, and turn access on or off in Settings › Privacy, like on your Mac.</p></div>
           <div class="card"><div class="glyph"><svg><use href="#i-code"/></svg></div><h3>Open source</h3><p>GPLv3, built on LineageOS, QEMU and scrcpy. No account, no Google services, nothing leaves your Mac.</p></div>
         </div>
       </div>
@@ -153,13 +153,13 @@
               <span class="glyph"><svg><use href="#i-wand"/></svg></span>
               <span><strong>Smart</strong><span>Always ready and always adapting. Steps back the moment your Mac needs its resources or the battery runs low.</span></span>
             </button>
-            <button class="mode-tab" role="tab" aria-selected="false" data-mode="performance" id="tab-performance" aria-controls="mode-panel">
+            <button class="mode-tab" role="tab" aria-selected="false" data-mode="standard" id="tab-standard" aria-controls="mode-panel">
               <span class="glyph"><svg><use href="#i-gauge"/></svg></span>
-              <span><strong>Performance</strong><span>Maximum performance: every core and all the memory you allow, all the time.</span></span>
+              <span><strong>Standard</strong><span>Android as it is, with nothing tuned: every core, all of its memory and its own power settings.</span></span>
             </button>
-            <button class="mode-tab" role="tab" aria-selected="false" data-mode="game" id="tab-game" aria-controls="mode-panel">
+            <button class="mode-tab" role="tab" aria-selected="false" data-mode="performance" id="tab-performance" aria-controls="mode-panel">
               <span class="glyph"><svg><use href="#i-pad"/></svg></span>
-              <span><strong>Gaming</strong><span>Maximum performance tuned for games: up to 120 fps and lower input latency.</span></span>
+              <span><strong>Performance</strong><span>Maximum performance all the time, with game optimizations, up to 120 fps and lower input latency.</span></span>
             </button>
           </div>
 
@@ -173,8 +173,7 @@
             <ul class="smart-rules" id="smart-rules">
               <li><b>No app open</b>Saving power, still ready to open apps instantly</li>
               <li><b>App in front</b>Full speed on power, Balanced on battery</li>
-              <li><b>Game in front</b>Gaming level on power, Performance on battery</li>
-              <li><b>Mac needs it</b>Saving power while other apps are busy, memory is tight, the battery is low, Low Power Mode is on or the Mac runs hot</li>
+                            <li><b>Mac needs it</b>Saving power while other apps are busy, memory is tight, the battery is low, Low Power Mode is on or the Mac runs hot</li>
             </ul>
           </div>
         </div>
@@ -206,9 +205,9 @@
                 <li class="head">Performance Mode</li>
                 <li>Power Saver</li>
                 <li class="on">✓ Smart</li>
+                <li>Standard</li>
                 <li>Performance</li>
-                <li>Gaming</li>
-                <li class="sep"></li>
+                                <li class="sep"></li>
                 <li>✓ Always Ready (Start with Mac)</li>
                 <li>Open Android App ›</li>
                 <li>Install Android App…</li>

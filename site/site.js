@@ -20,17 +20,17 @@
     },
     smart: {
       title: "Smart",
-      text: "Stays ready in the background so apps open instantly, and keeps adapting: full speed for the app you're using, Gaming level for a game, and power saving the moment other Mac apps need the processor or memory, the battery runs low, Low Power Mode is on or your Mac gets hot.",
+      text: "Stays ready in the background so apps open instantly, and keeps adapting: full speed for the app you're using, and power saving the moment other Mac apps need the processor or memory, the battery runs low, Low Power Mode is on or your Mac gets hot.",
       cpu: [62, "25–100%"], mem: [80, "60–100%"], fps: [50, "30–120"], energy: [40, "adapts"],
+    },
+    standard: {
+      title: "Standard",
+      text: "Android runs as it is, with nothing tuned: every processor core, all of its memory and its own power settings, at normal priority. It stays ready in the background.",
+      cpu: [100, "100%"], mem: [100, "100%"], fps: [50, "60 fps"], energy: [70, "high"],
     },
     performance: {
       title: "Performance",
-      text: "Maximum performance: every core and all the memory you allow, at normal priority, all the time. Android stays ready in the background and app windows run at 60 fps.",
-      cpu: [100, "100%"], mem: [100, "100%"], fps: [50, "60 fps"], energy: [75, "high"],
-    },
-    game: {
-      title: "Gaming",
-      text: "Maximum performance optimized for games: Android's fixed-performance mode and its game mode for the game in front, a higher-quality stream, up to 120 fps on ProMotion displays and lower input latency.",
+      text: "Maximum performance, all the time: every core and all of Android's memory, Android's fixed-performance and game modes, a higher-quality stream, up to 120 fps on ProMotion displays and lower input latency.",
       cpu: [100, "100%"], mem: [100, "100%"], fps: [100, "120 fps"], energy: [92, "highest"],
     },
   };

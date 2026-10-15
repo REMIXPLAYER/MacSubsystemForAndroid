@@ -41,6 +41,7 @@
         <li><a href="#always">Always Ready</a></li>
         <li><a href="#modes">Performance modes</a></li>
         <li><a href="#controllers">Game controllers</a></li>
+        <li><a href="#privacy">Privacy</a></li>
         <li><a href="#storage">Storage and clean-up</a></li>
         <li><a href="#adb">Developers and ADB</a></li>
         <li><a href="#trouble">Troubleshooting</a></li>
@@ -114,7 +115,7 @@
         <table>
           <thead><tr><th>Setting</th><th>What happens</th></tr></thead>
           <tbody>
-            <tr><td><strong>Automatic</strong> (default)</td><td>Smart, Performance and Gaming keep Android ready; Power Saver turns it off when the last app closes (below).</td></tr>
+            <tr><td><strong>Automatic</strong> (default)</td><td>Smart, Standard and Performance keep Android ready; Power Saver turns it off when the last app closes (below).</td></tr>
             <tr><td><strong>As needed</strong></td><td>Android turns off a few minutes after the last app closes (you choose how many).</td></tr>
             <tr><td><strong>Continuous</strong></td><td>Android stays ready.</td></tr>
           </tbody>
@@ -130,17 +131,17 @@
           <tbody>
             <tr><td><strong>Power Saver</strong></td><td>A hybrid of saving power and Smart. Android only runs while an Android app is open. While it does, it saves power by default (QEMU as a background task on the efficiency cores, two processor cores online in Android, 40% of its memory back to macOS, Android's battery saver on, 30 fps windows) and steps up to Balanced for the Android app in front when the Mac is plugged in and isn't busy.</td></tr>
             <tr><td><strong>Smart</strong></td><td>Keeps Android ready in the background and adapts every few seconds and whenever something changes: full speed for what you're using, and power saving as soon as other apps need the Mac or the battery runs low (see below).</td></tr>
-            <tr><td><strong>Performance</strong></td><td>Maximum performance: all the cores and memory you allow, at normal priority, all the time; 60 fps windows. Android stays ready.</td></tr>
-            <tr><td><strong>Gaming</strong></td><td>Maximum performance optimized for games: Performance plus Android's fixed-performance mode, Android's game mode for the game in front, a higher-quality stream and up to 120 fps on ProMotion displays. Also keeps macOS from throttling the game window.</td></tr>
+            <tr><td><strong>Standard</strong></td><td>Android as it is, with nothing tuned: every core and all of its memory at normal priority, and Android's own power settings. Android stays ready.</td></tr>
+            <tr><td><strong>Performance</strong></td><td>Maximum performance, all the time: every core and all of Android's memory, Android's fixed-performance mode and game mode for the game in front, a higher-quality stream and up to 120 fps on ProMotion displays. Also keeps macOS from throttling the app window.</td></tr>
           </tbody>
         </table>
         <h3>How Smart decides</h3>
         <table>
           <thead><tr><th>When</th><th>Level</th></tr></thead>
           <tbody>
-            <tr><td>Other apps are using most of the processor, memory is tight, Low Power Mode is on, the Mac is hot, or the battery is below 20%</td><td>Saving power</td></tr>
+            <tr><td>Other apps are using most of the processor, memory is tight, Low Power Mode is on, the Mac is hot, or the battery is below 20%</td><td>Saving power (Balanced for the Android app in front, so it stays usable)</td></tr>
             <tr><td>No Android app window open</td><td>Saving power (Android stays ready)</td></tr>
-            <tr><td>A game is in front</td><td>Gaming (Performance on battery)</td></tr>
+            <tr><td>A game is in front</td><td>Performance</td></tr>
             <tr><td>Another Android app is in front</td><td>Performance (Balanced on battery)</td></tr>
             <tr><td>Android windows open, a Mac app in front</td><td>Balanced (saving power on battery)</td></tr>
           </tbody>
@@ -154,6 +155,13 @@
         <p>Pair a controller in System Settings › Bluetooth, or plug it in. Any controller macOS supports works: Xbox Wireless, PlayStation DualSense and DualShock 4, Nintendo Switch Pro and MFi controllers.</p>
         <p>When an Android app's window is in front, each controller appears inside Android as a standard gamepad (an Xbox 360-style pad, which every Android game supports). Sticks, analog triggers, the d-pad and all buttons work, for up to eight controllers. Switch to another Android window and the controller follows.</p>
         <p>To turn this off, use Settings › Performance › <em>Use game controllers in Android games</em>.</p>
+      </section>
+
+      <section id="privacy">
+        <h2>Privacy</h2>
+        <p>Settings › Privacy works like Privacy &amp; Security on your Mac. It lists Camera, Microphone, Location, Contacts, Calendars, Photos &amp; Videos, Music &amp; Audio, Files, Notifications, Phone, Call Logs, Messages, Nearby Devices, Body Sensors and Physical Activity, with the Android apps that asked for each. Turn an app's access on or off with its switch; Android applies it right away. You can also right-click an app in Settings › Apps and choose <em>Privacy…</em> to see everything that one app may use.</p>
+        <p>A lock means Android itself manages that permission. Turning location on allows it while the app is in use; turning it off also removes background access.</p>
+        <p>What Android can actually reach on your Mac: the microphone only when <em>Let Android use this Mac's microphone</em> is on (Privacy › Microphone or Settings › System; it applies the next time Android starts). Android has no camera, location source, phone service or body sensors on a Mac yet, so apps get nothing from those even when allowed.</p>
       </section>
 
       <section id="storage">
