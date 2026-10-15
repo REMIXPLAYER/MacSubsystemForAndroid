@@ -176,7 +176,7 @@ enum LauncherGenerator {
         context.clip()
         if adaptive {
             // 108dp layers, of which the inner ~88dp are meant to be seen.
-            let visible = 0.815
+            let visible: CGFloat = 0.815
             let width = CGFloat(icon.width), height = CGFloat(icon.height)
             let crop = CGRect(x: width * (1 - visible) / 2, y: height * (1 - visible) / 2,
                               width: width * visible, height: height * visible)
