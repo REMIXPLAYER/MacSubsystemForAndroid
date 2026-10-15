@@ -1,0 +1,123 @@
+name: Boot test
+
+# Boots the Android image the app downloads, with the same QEMU devices the app
+# uses, on an Arm Linux runner, and reports how far it gets (ADB, boot completed,
+# the serial console) as annotations on the run.
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: Give up after this many minutes
+        default: "40"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/boot-test.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  boot:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      MINUTES: ${{ inputs.minutes || '40' }}
+    steps:
+      - name: Install QEMU and ADB
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-system-arm qemu-utils qemu-efi-aarch64 adb unzip >/dev/null
+          qemu-system-aarch64 --version | head -1
+          if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; echo "ACCEL=kvm" >> "$GITHUB_ENV"; else echo "ACCEL=tcg" >> "$GITHUB_ENV"; fi
+
+      - name: Download the image
+        run: |
+          for repo in "$GITHUB_REPOSITORY" jqssun/android-lineage-qemu; do
+            url=$(gh api "repos/$repo/releases?per_page=20" --jq '[.[] | select(.draft|not) | .assets[] | select(.name|test("^UTM-VM-lineage-.*arm64only.*\\.zip$"))][0].browser_download_url' 2>/dev/null || true)
+            [ -n "$url" ] && break
+          done
+          echo "Image: $url"
+          echo "IMAGE=$(basename "$url")" >> "$GITHUB_ENV"
+          curl -sSL -o image.zip "$url"
+          ls -la image.zip
+          mkdir image && cd image && unzip -q ../image.zip
+          find . -maxdepth 4 | head -40
+
+      - name: Boot
+        run: |
+          set -u
+          DATA=$(dirname "$(find image -name 'efi_vars.fd' | head -1)")
+          CONFIG=$(find image -name 'config.plist' | head -1)
+          CODE=$(ls /usr/share/qemu/edk2-aarch64-code.fd /usr/share/AAVMF/AAVMF_CODE.no-secboot.fd /usr/share/AAVMF/AAVMF_CODE.fd 2>/dev/null | head -1)
+          mkdir -p vm
+          cp "$DATA/efi_vars.fd" vm/efi_vars.fd
+          echo "efi_vars.fd: $(stat -c %s vm/efi_vars.fd) bytes; firmware $CODE: $(stat -c %s "$CODE") bytes"
+          truncate -s "$(stat -c %s "$CODE")" vm/efi_vars.fd
+
+          # Disks in the order UTM's config lists them, as copy-on-write overlays (like the app).
+          DISKS=$(grep -o '<string>[^<]*\.qcow2</string>' "$CONFIG" | sed 's/<[^>]*>//g' | awk '!s[$0]++')
+          [ -n "$DISKS" ] || DISKS=$(cd "$DATA" && ls *.qcow2 | sort)
+          echo "Disks: $DISKS"
+          DRIVES=(); i=0
+          for d in $DISKS; do
+            qemu-img create -q -f qcow2 -F qcow2 -b "$PWD/$DATA/$d" "vm/disk$i.qcow2"
+            DRIVES+=(-drive "file=vm/disk$i.qcow2,if=none,id=vd$i,format=qcow2,discard=unmap,detect-zeroes=unmap" -device "virtio-blk-pci,drive=vd$i,bootindex=$i")
+            i=$((i+1))
+          done
+
+          CPU=host; [ "$ACCEL" = tcg ] && CPU=max
+          qemu-system-aarch64 -name test -machine virt -accel "$ACCEL" -cpu "$CPU" -smp 4 -m 4096 -nodefaults \
+            -drive "if=pflash,format=raw,unit=0,readonly=on,file=$CODE" \
+            -drive "if=pflash,format=raw,unit=1,file=vm/efi_vars.fd" \
+            "${DRIVES[@]}" \
+            -netdev user,id=net0,hostfwd=tcp:127.0.0.1:58526-:5555 -device virtio-net-pci,netdev=net0,romfile= \
+            -device virtio-rng-pci -device virtio-balloon-pci,deflate-on-oom=on \
+            -qmp unix:vm/qmp.sock,server=on,wait=off -device virtio-serial \
+            -serial file:vm/console.log -device virtio-gpu-pci,xres=1080,yres=1920 -display none \
+            > vm/qemu.log 2>&1 &
+          QEMU=$!
+          echo "QEMU pid $QEMU, accel $ACCEL"
+
+          START=$(date +%s); STATE=""; LOG=timeline.txt
+          note() { echo "$(( $(date +%s) - START ))s $*" | tee -a $LOG; }
+          note "started (accel $ACCEL, image $IMAGE)"
+          while [ $(( $(date +%s) - START )) -lt $(( MINUTES * 60 )) ]; do
+            if ! kill -0 $QEMU 2>/dev/null; then note "QEMU exited"; break; fi
+            adb connect 127.0.0.1:58526 >/dev/null 2>&1
+            NOW=$(adb devices | awk '$1=="127.0.0.1:58526"{print $2}')
+            [ -z "$NOW" ] && NOW="no-adb"
+            if [ "$NOW" != "$STATE" ]; then note "adb: $NOW"; STATE=$NOW; fi
+            if [ "$NOW" = device ]; then
+              if [ "$(adb -s 127.0.0.1:58526 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]; then
+                note "sys.boot_completed=1"; break
+              fi
+            fi
+            sleep 10
+          done
+          {
+            echo "== timeline"; cat $LOG
+            if [ "$STATE" = device ]; then
+              echo "== props"
+              for p in ro.build.fingerprint ro.build.version.release ro.adb.secure ro.debuggable service.adb.tcp.port persist.adb.tcp.port ro.boot.hardware; do
+                echo "$p=$(adb -s 127.0.0.1:58526 shell getprop $p | tr -d '\r')"
+              done
+              echo "su: $(adb -s 127.0.0.1:58526 shell 'su 0 id' 2>&1 | tr -d '\r' | head -1)"
+            fi
+            echo "== qemu.log"; tail -n 20 vm/qemu.log
+            echo "== console (last 60 lines)"; tail -n 60 vm/console.log | cut -c1-200
+            echo "== UTM config QEMU-related keys"; grep -A1 -E '<key>(Architecture|Target|CPU|Hypervisor|UEFIBoot|AdditionalArguments|Hardware|Network|Display)</key>' "$CONFIG" | grep -v '^--' | sed 's/^[[:space:]]*//' | paste - - | head -30
+          } > report.txt
+          cat report.txt
+          kill $QEMU 2>/dev/null || true
+
+      - name: Report
+        if: always()
+        run: |
+          [ -f report.txt ] || exit 0
+          # Annotations are limited in size: split the report into a few.
+          split -l 45 report.txt part-
+          for f in part-*; do
+            echo "::notice title=Boot test ($(basename $f))::$(sed 's/%/%25/g; s/\r//g' "$f" | cut -c1-300 | awk 'BEGIN{ORS="%0A"} {print}')"
+          done
