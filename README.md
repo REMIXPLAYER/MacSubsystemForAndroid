@@ -88,3 +88,9 @@ The app name, bundle ID, URL scheme, ADB port and repository are set in `apple/C
 GPL-3.0-or-later. QEMU (GPLv2) runs as a separate program; the scrcpy server is Apache 2.0. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
 
 An independent project: not made, affiliated with or endorsed by Google, Apple or the LineageOS project. Android is a trademark of Google LLC. The Android robot in the icons is reproduced or modified from work created and shared by Google and used according to terms described in the Creative Commons 3.0 Attribution License.
+
+## Support
+
+If you enjoy this project, you can support me here:
+
+<a href="https://buymeacoffee.com/harkhowalia"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" alt="Buy me a coffee" height="50"></a>
