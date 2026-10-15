@@ -256,7 +256,7 @@ final class AndroidWindowController: NSWindowController, NSWindowDelegate {
     @objc func copy(_ sender: Any?) { session?.requestCopy() }
     @objc func cut(_ sender: Any?) { session?.requestCopy(cut: true) }
 
-    @objc func selectAll(_ sender: Any?) {
+    @objc override func selectAll(_ sender: Any?) {
         session?.injectKey(.down, keycode: 29, metaState: AndroidKeys.metaCtrl) // Ctrl+A
         session?.injectKey(.up, keycode: 29, metaState: AndroidKeys.metaCtrl)
     }
