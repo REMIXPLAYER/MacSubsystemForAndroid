@@ -91,6 +91,33 @@ enum AndroidSetup {
         }
     }
 
+    /// Apps that download or ship app packages: they may install apps without the
+    /// person first finding Android's "Install unknown apps" setting.
+    static let installerPackages = [
+        "org.lineageos.jelly",          // Browser
+        "com.android.documentsui",      // Files
+        "org.fdroid.fdroid", "org.fdroid.basic", "com.aurora.store", "com.machiav3lli.fdroid",
+        "dev.imranr.obtainium", "com.looker.droidify",
+        "org.mozilla.fennec_fdroid", "org.mozilla.firefox", "com.android.chrome",
+        "com.brave.browser", "app.vanadium.browser", "org.chromium.chrome",
+    ]
+
+    /// Allow the browser, Files and app stores (and whichever browser is the
+    /// default) to install the packages they download. Installing still shows
+    /// Android's own "Do you want to install this app?" confirmation.
+    static func allowInstallingApps(_ adb: ADBConnection) {
+        let browsers = ((try? adb.execString("cmd role get-role-holders android.app.role.BROWSER", timeout: 10)) ?? "")
+            .split(whereSeparator: { $0 == ";" || $0 == "," || $0.isWhitespace })
+            .map(String.init)
+        let valid = (installerPackages + browsers).filter { name in
+            !name.isEmpty && name.allSatisfy { $0.isLetter || $0.isNumber || $0 == "." || $0 == "_" }
+        }
+        let script = Array(Set(valid)).sorted()
+            .map { "appops set --user 0 \($0) REQUEST_INSTALL_PACKAGES allow 2>/dev/null" }
+            .joined(separator: "; ")
+        _ = try? adb.exec(script + "; true", timeout: 30)
+    }
+
     static func shellQuoted(_ value: String) -> String {
         "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }

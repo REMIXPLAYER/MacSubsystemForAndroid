@@ -50,7 +50,6 @@ final class SubsystemSettings: ObservableObject {
     @Published var microphone: Bool { didSet { defaults.set(microphone, forKey: "microphone") } }
     @Published var showSoftKeyboard: Bool { didSet { defaults.set(showSoftKeyboard, forKey: "showSoftKeyboard") } }
     @Published var displayDensity: Double { didSet { defaults.set(displayDensity, forKey: "displayDensity") } }
-    @Published var showSystemApps: Bool { didSet { defaults.set(showSystemApps, forKey: "showSystemApps") } }
     @Published var notifications: Bool { didSet { defaults.set(notifications, forKey: "notifications") } }
     @Published var performanceMode: PerformanceMode {
         didSet { defaults.set(performanceMode.rawValue, forKey: "performanceMode") }
@@ -79,7 +78,6 @@ final class SubsystemSettings: ObservableObject {
         microphone = defaults.bool(forKey: "microphone")
         showSoftKeyboard = defaults.bool(forKey: "showSoftKeyboard")
         displayDensity = defaults.object(forKey: "displayDensity") as? Double ?? 1.0
-        showSystemApps = defaults.bool(forKey: "showSystemApps")
         notifications = defaults.object(forKey: "notifications") as? Bool ?? true
         performanceMode = PerformanceMode(saved: defaults.string(forKey: "performanceMode") ?? "") ?? .smart
         controllers = defaults.object(forKey: "controllers") as? Bool ?? true

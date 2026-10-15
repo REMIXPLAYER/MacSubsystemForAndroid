@@ -289,6 +289,7 @@ final class Subsystem: ObservableObject {
             AndroidSetup.firstBoot(adb)
         }
         AndroidSetup.applyIdentity(adb)
+        AndroidSetup.allowInstallingApps(adb)
         progress("Preparing apps…")
         try AndroidSetup.ensureBridge(adb)
         try AndroidSetup.ensureScrcpyServer(adb)
@@ -480,9 +481,13 @@ final class Subsystem: ObservableObject {
     func syncApps() {
         guard let adb, !syncing else { return }
         syncing = true
-        let showSystem = settings.showSystemApps
         work.async {
-            let result = Result { try AppCatalog.sync(adb, showSystemApps: showSystem) }
+            let result = Result { try AppCatalog.sync(adb) }
+            // A newly installed browser or app store may install apps too.
+            if case .success(let catalog) = result,
+               catalog.added.contains(where: { AndroidSetup.installerPackages.contains($0.package) }) {
+                AndroidSetup.allowInstallingApps(adb)
+            }
             Task { @MainActor in
                 let subsystem = Subsystem.shared
                 subsystem.syncing = false
@@ -528,7 +533,6 @@ final class Subsystem: ObservableObject {
             return
         }
         let before = Set(apps.map(\.package))
-        let showSystem = settings.showSystemApps
         busy = Busy(message: "Installing \(packages[0].lastPathComponent)…", progress: 0)
         work.async {
             var failures: [String] = []
@@ -547,7 +551,7 @@ final class Subsystem: ObservableObject {
                     failures.append("\(url.lastPathComponent): \(error.localizedDescription)")
                 }
             }
-            let catalog = try? AppCatalog.sync(adb, showSystemApps: showSystem)
+            let catalog = try? AppCatalog.sync(adb)
             Task { @MainActor in
                 let subsystem = Subsystem.shared
                 subsystem.busy = nil
@@ -578,10 +582,9 @@ final class Subsystem: ObservableObject {
             return
         }
         busy = Busy(message: "Removing \(app.label)…")
-        let showSystem = settings.showSystemApps
         work.async {
             let result = Result { try PackageInstaller.uninstall(app.package, adb: adb) }
-            let catalog = try? AppCatalog.sync(adb, showSystemApps: showSystem)
+            let catalog = try? AppCatalog.sync(adb)
             Task { @MainActor in
                 let subsystem = Subsystem.shared
                 subsystem.busy = nil

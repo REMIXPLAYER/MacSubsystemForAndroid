@@ -12,24 +12,19 @@ import AppKit
 import Foundation
 
 enum AppCatalog {
-    /// System apps that get a Mac launcher even when system apps are hidden.
-    static let alwaysShown: Set<String> = [
-        "com.android.settings",
-        "com.android.documentsui",
-    ]
-
     struct Result {
         let apps: [AndroidApp]
         let added: [AndroidApp]
         let removed: [AndroidApp]
     }
 
-    static func sync(_ adb: ADBConnection, showSystemApps: Bool) throws -> Result {
+    /// Every app Android's own app drawer shows (everything with a launcher icon,
+    /// built-in apps such as Browser, Camera and Settings included) gets a Mac app.
+    static func sync(_ adb: ADBConnection) throws -> Result {
         let data = try AndroidBridge.read("apps.json", from: adb)
         let reported = try JSONDecoder().decode([AndroidApp].self, from: data)
         let visible = reported
             .filter { $0.package != AndroidBridge.package }
-            .filter { !$0.isSystem || showSystemApps || alwaysShown.contains($0.package) }
             .sorted { $0.label.localizedCaseInsensitiveCompare($1.label) == .orderedAscending }
 
         let previous = Dictionary(AppStore.load().map { ($0.package, $0) }, uniquingKeysWith: { a, _ in a })

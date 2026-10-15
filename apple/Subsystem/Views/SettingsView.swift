@@ -353,8 +353,8 @@ struct AppsSettingsView: View {
             }
             Divider()
             HStack {
-                Toggle("Show system apps", isOn: $settings.showSystemApps)
-                    .onChange(of: settings.showSystemApps) { _, _ in subsystem.rebuildLaunchers() }
+                Text("\(subsystem.apps.count) apps")
+                    .foregroundStyle(.secondary)
                 Spacer()
                 Button("Get F-Droid") { subsystem.installFDroid() }
                 Button("Install APK…") { install() }
