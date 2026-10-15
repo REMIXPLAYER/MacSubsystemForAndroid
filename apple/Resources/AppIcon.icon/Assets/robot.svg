@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <!-- The Mac window (window.svg): the head peeks in over its bottom edge. -->
+    <clipPath id="window"><rect x="132" y="168" width="760" height="600" rx="76"/></clipPath>
+  </defs>
+  <g clip-path="url(#window)" fill="#3DDC84" stroke="#3DDC84" stroke-linecap="round">
+    <line x1="403" y1="656" x2="337" y2="542" stroke-width="30"/>
+    <line x1="621" y1="656" x2="687" y2="542" stroke-width="30"/>
+    <path d="M232 845 A280 280 0 0 1 792 845 Z" stroke="none"/>
+  </g>
+</svg>

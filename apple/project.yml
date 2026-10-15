@@ -20,7 +20,7 @@ configFiles:
   Release: Config/Base.xcconfig
 settings:
   base:
-    MARKETING_VERSION: "0.3.1"
+    MARKETING_VERSION: "0.3.2"
     CURRENT_PROJECT_VERSION: "1"
     CODE_SIGN_STYLE: Automatic
 
@@ -48,6 +48,10 @@ targets:
       - path: Subsystem
       - path: Shared
       - path: Resources/Assets.xcassets
+      # Liquid Glass icon (Icon Composer); actool also derives the older macOS icon from it.
+      - path: Resources/AppIcon.icon
+        type: file
+        buildPhase: resources
     dependencies:
       - target: AndroidAppHost
         embed: false
