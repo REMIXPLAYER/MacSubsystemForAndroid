@@ -1,5 +1,5 @@
-// Mac Subsystem for Android - the settings window: System, Performance, Apps, Files,
-// Storage, Advanced, About.
+// Mac Subsystem for Android - the settings window: System, Performance, Apps, Privacy,
+// Files, Storage, Advanced, About.
 // Licensed under the GNU General Public License v3 or later.
 
 import AppKit
@@ -8,13 +8,14 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 enum SettingsSection: String, CaseIterable, Identifiable {
-    case system, performance, apps, files, storage, advanced, about
+    case system, performance, apps, privacy, files, storage, advanced, about
     var id: String { rawValue }
     var title: String {
         switch self {
         case .system: return "System"
         case .performance: return "Performance"
         case .apps: return "Apps"
+        case .privacy: return "Privacy"
         case .files: return "Files"
         case .storage: return "Storage"
         case .advanced: return "Advanced"
@@ -26,6 +27,7 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         case .system: return "cpu"
         case .performance: return "gauge.with.dots.needle.67percent"
         case .apps: return "square.grid.2x2"
+        case .privacy: return "hand.raised"
         case .files: return "folder"
         case .storage: return "internaldrive"
         case .advanced: return "slider.horizontal.3"
@@ -60,6 +62,7 @@ struct SettingsRootView: View {
                     case .system: SystemSettingsView()
                     case .performance: PerformanceSettingsView()
                     case .apps: AppsSettingsView()
+                    case .privacy: PrivacySettingsView()
                     case .files: FilesSettingsView()
                     case .storage: StorageSettingsView()
                     case .advanced: AdvancedSettingsView()
@@ -313,6 +316,7 @@ struct AppsSettingsView: View {
     @EnvironmentObject private var subsystem: Subsystem
     @EnvironmentObject private var settings: SubsystemSettings
     @State private var confirmRemove: AndroidApp?
+    @State private var privacyApp: AndroidApp?
     @State private var dropTargeted = false
 
     var body: some View {
@@ -335,6 +339,8 @@ struct AppsSettingsView: View {
                             .contextMenu {
                                 Button("Open") { subsystem.open(app) }
                                 Button("Show in Finder") { revealLauncher(app) }
+                                Button("Privacy…") { privacyApp = app }
+                                    .disabled(subsystem.state != .running)
                                 Divider()
                                 Button("Uninstall…", role: .destructive) { confirmRemove = app }
                                     .disabled(app.isSystem)
@@ -365,6 +371,7 @@ struct AppsSettingsView: View {
             subsystem.install(packages)
             return true
         } isTargeted: { dropTargeted = $0 }
+        .sheet(item: $privacyApp) { AppPrivacySheet(app: $0) }
         .navigationTitle("Apps")
         .navigationSubtitle("Each app is also in Launchpad and Applications › \(AppConfig.launcherFolderName)")
         .confirmationDialog("Uninstall \(confirmRemove?.label ?? "")?",
