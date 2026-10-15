@@ -87,7 +87,22 @@ struct AndroidImage: Codable, Equatable, Sendable {
         if !FileManager.default.fileExists(atPath: target.path) {
             try FileManager.default.copyItem(at: dataFolder.appendingPathComponent("efi_vars.fd"), to: target)
         }
+        try Self.padFlash(target)
         return target
+    }
+
+    /// QEMU's virt machine needs both pflash images to be the same size as the
+    /// firmware (64 MiB for Homebrew's edk2-aarch64-code.fd). UTM images ship a
+    /// small efi_vars.fd that UTM pads itself, so pad it with zeros here.
+    static func padFlash(_ url: URL) throws {
+        let firmware = Bundle.main.resourceURL?.appendingPathComponent("qemu/edk2-aarch64-code.fd")
+        let firmwareSize = (firmware.flatMap { try? FileManager.default.attributesOfItem(atPath: $0.path)[.size] as? UInt64 }) ?? 0
+        let size = firmwareSize > 0 ? firmwareSize : 64 * 1_048_576
+        let current = (try FileManager.default.attributesOfItem(atPath: url.path)[.size] as? UInt64) ?? 0
+        guard current < size else { return }
+        let handle = try FileHandle(forWritingTo: url)
+        defer { try? handle.close() }
+        try handle.truncate(atOffset: size)
     }
 
     /// Erase everything Android stored (apps, data, settings).
