@@ -1,7 +1,7 @@
-// Mac Android Subsystem - the look of the settings window, modelled on the Mac's
-// System Settings: a searchable sidebar with a device card and coloured icon
-// tiles in groups, a header at the top of each pane, and a banner offering to
-// restart Android when a setting that applies at start has changed.
+// Mac Android Subsystem - the look of the settings window, inspired by the Mac's
+// System Settings: a searchable sidebar with Android's status and coloured icon
+// tiles in groups, and a banner offering to restart Android when a setting that
+// applies at start has changed.
 //
 // Licensed under the GNU General Public License v3 or later.
 
@@ -146,6 +146,7 @@ struct SettingsSidebar: View {
                             Text(section.title)
                         }
                         .padding(.vertical, 1)
+                        .help(section.subtitle)
                         .tag(section)
                     }
                 }
@@ -166,57 +167,82 @@ struct SettingsSidebar: View {
     }
 }
 
-/// Top of the sidebar, like the Apple Account card: the subsystem and its state.
+/// Top of the sidebar: Android at a glance, with a one-click start or stop.
 struct DeviceCard: View {
     @EnvironmentObject private var subsystem: Subsystem
+    @EnvironmentObject private var settings: SubsystemSettings
 
     var body: some View {
         HStack(spacing: 10) {
             AndroidBadge(state: subsystem.state)
+                .overlay(alignment: .bottomTrailing) {
+                    Circle()
+                        .fill(statusColor)
+                        .frame(width: 10, height: 10)
+                        .overlay(Circle().strokeBorder(Color(nsColor: .windowBackgroundColor), lineWidth: 2))
+                        .offset(x: 1, y: 1)
+                }
             VStack(alignment: .leading, spacing: 1) {
-                Text(AppConfig.displayName)
+                Text(title)
                     .font(.headline)
-                    .lineLimit(1)
-                Text(subtitle)
+                Text(status)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .lineLimit(1)
             }
+            .lineLimit(1)
+            .minimumScaleFactor(0.85)
+            Spacer(minLength: 4)
+            powerButton
         }
         .padding(.vertical, 4)
+        .contentShape(Rectangle())
     }
 
-    private var subtitle: String {
+    /// "Android 16" once Android has started, otherwise "Android".
+    private var title: String {
+        guard let version = subsystem.androidVersion,
+              let release = version.split(separator: "·").first?.trimmingCharacters(in: .whitespaces),
+              !release.isEmpty else { return "Android" }
+        return release
+    }
+
+    private var status: String {
         switch subsystem.state {
         case .running:
-            if let version = subsystem.androidVersion { return "\(AppConfig.shortName) · \(version)" }
-            return "\(AppConfig.shortName) · Running"
-        default:
-            return "\(AppConfig.shortName) · \(subsystem.state.title)"
+            if let level = subsystem.performanceLevel, settings.performanceMode == .smart {
+                return "Running · \(level.title)"
+            }
+            return "Running · \(settings.performanceMode.title)"
+        case .starting: return "Starting…"
+        case .stopping: return "Turning off…"
+        case .failed: return "Stopped with an error"
+        case .off: return "Off"
+        case .notInstalled: return "Not set up"
         }
     }
-}
 
-// MARK: - Pane header
-
-/// The header at the top of each pane: a large tile, the title and what it's for.
-struct PaneHeader: View {
-    let section: SettingsSection
-
-    var body: some View {
-        VStack(spacing: 8) {
-            SettingsTile(symbol: section.tileSymbol, tint: section.tint, size: 56)
-            Text(section.title)
-                .font(.title2.weight(.semibold))
-            Text(section.subtitle)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 420)
+    private var statusColor: Color {
+        switch subsystem.state {
+        case .running: return .green
+        case .starting, .stopping: return .orange
+        case .failed: return .red
+        case .off, .notInstalled: return .gray
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 6)
-        .padding(.bottom, 4)
+    }
+
+    @ViewBuilder private var powerButton: some View {
+        switch subsystem.state {
+        case .off, .failed:
+            Button { subsystem.start() } label: { Image(systemName: "power") }
+                .help("Start Android")
+                .buttonStyle(.borderless)
+        case .running, .starting:
+            Button { subsystem.stop() } label: { Image(systemName: "stop.circle") }
+                .help("Turn off Android")
+                .buttonStyle(.borderless)
+        default:
+            EmptyView()
+        }
     }
 }
 

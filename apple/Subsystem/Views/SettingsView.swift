@@ -95,7 +95,6 @@ struct SystemSettingsView: View {
 
     var body: some View {
         Form {
-            Section { PaneHeader(section: .system) }
             Section {
                 StatusCard()
             }
@@ -211,7 +210,6 @@ struct PerformanceSettingsView: View {
 
     var body: some View {
         Form {
-            Section { PaneHeader(section: .performance) }
             Section {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                     ForEach(PerformanceMode.allCases) { mode in
@@ -325,8 +323,6 @@ struct AppsSettingsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            PaneHeader(section: .apps)
-                .padding(.vertical, 10)
             if subsystem.apps.isEmpty {
                 ContentUnavailableView {
                     Label("No Android apps yet", systemImage: "square.grid.2x2")
@@ -445,7 +441,6 @@ struct FilesSettingsView: View {
 
     var body: some View {
         Form {
-            Section { PaneHeader(section: .files) }
             Section {
                 VStack(spacing: 12) {
                     Image(systemName: "arrow.down.doc")
@@ -494,7 +489,6 @@ struct StorageSettingsView: View {
 
     var body: some View {
         Form {
-            Section { PaneHeader(section: .storage) }
             Section {
                 UsageBar(usage: janitor.usage)
                     .padding(.vertical, 6)
@@ -584,7 +578,6 @@ struct AdvancedSettingsView: View {
 
     var body: some View {
         Form {
-            Section { PaneHeader(section: .advanced) }
             Section {
                 Toggle("Developer mode", isOn: $settings.developerMode)
                 if settings.developerMode {

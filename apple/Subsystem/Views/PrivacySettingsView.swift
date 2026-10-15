@@ -23,7 +23,6 @@ struct PrivacySettingsView: View {
                     }
                 } else {
                     Form {
-                        Section { PaneHeader(section: .privacy) }
                         Section {
                             ForEach(PrivacyCategory.allCases) { category in
                                 NavigationLink(value: category) {
