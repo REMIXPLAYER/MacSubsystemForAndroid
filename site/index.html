@@ -232,14 +232,38 @@
             </ul>
           </div>
           <div class="panel controller-art" aria-hidden="true">
-            <svg viewBox="0 0 400 230">
-              <defs><linearGradient id="padg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f9d6c"/><stop offset="1" stop-color="#0b5c3e"/></linearGradient></defs>
-              <path d="M110 40h180c40 0 70 26 80 64l18 72c8 34-34 58-58 32l-34-38H104l-34 38c-24 26-66 2-58-32l18-72c10-38 40-64 80-64z" fill="url(#padg)"/>
-              <circle cx="128" cy="104" r="24" fill="#0a2f22"/><circle cx="128" cy="104" r="15" fill="#3fe0a0"/>
-              <circle cx="238" cy="148" r="22" fill="#0a2f22"/><circle cx="238" cy="148" r="13" fill="#7cf0c0"/>
-              <rect x="150" y="136" width="44" height="14" rx="4" fill="#0a2f22"/><rect x="165" y="121" width="14" height="44" rx="4" fill="#0a2f22"/>
-              <circle cx="292" cy="88" r="10" fill="#f2b34b"/><circle cx="314" cy="108" r="10" fill="#f0706a"/><circle cx="270" cy="108" r="10" fill="#6aa8ff"/><circle cx="292" cy="128" r="10" fill="#3fe0a0"/>
-              <circle cx="200" cy="80" r="8" fill="#e8f1ee" opacity=".9"/>
+            <svg viewBox="0 0 400 260">
+              <defs>
+                <linearGradient id="padg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f6f5"/><stop offset="1" stop-color="#d9dfdc"/></linearGradient>
+                <linearGradient id="padshade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/></linearGradient>
+                <radialGradient id="stick" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#3a4440"/><stop offset="1" stop-color="#151b19"/></radialGradient>
+                <filter id="padsh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000" flood-opacity=".35"/></filter>
+              </defs>
+              <!-- shoulder bumpers -->
+              <path d="M88 52c18-14 50-18 72-14l-4 14H92z" fill="#bfc7c3"/>
+              <path d="M312 52c-18-14-50-18-72-14l4 14h64z" fill="#bfc7c3"/>
+              <!-- body: rounded Google-style shell with Xbox-like grips -->
+              <path filter="url(#padsh)" fill="url(#padg)" d="M120 50h160c44 0 72 22 84 62l22 78c9 34-6 56-30 58-16 1-28-8-38-24l-20-32c-6-9-14-14-26-14H128c-12 0-20 5-26 14l-20 32c-10 16-22 25-38 24-24-2-39-24-30-58l22-78c12-40 40-62 84-62z"/>
+              <path fill="url(#padshade)" d="M120 50h160c44 0 72 22 84 62l4 14H32l4-14c12-40 40-62 84-62z"/>
+              <!-- left stick (top-left, Xbox layout) -->
+              <circle cx="118" cy="106" r="27" fill="#c9d1cd"/><circle cx="118" cy="106" r="20" fill="url(#stick)"/><circle cx="118" cy="106" r="13" fill="none" stroke="#4a5551" stroke-width="2"/>
+              <!-- d-pad -->
+              <circle cx="160" cy="160" r="25" fill="#c9d1cd"/>
+              <path d="M153 140h14v13h13v14h-13v13h-14v-13h-13v-14h13z" fill="#1d2523"/>
+              <!-- right stick -->
+              <circle cx="240" cy="160" r="27" fill="#c9d1cd"/><circle cx="240" cy="160" r="20" fill="url(#stick)"/><circle cx="240" cy="160" r="13" fill="none" stroke="#4a5551" stroke-width="2"/>
+              <!-- face buttons -->
+              <circle cx="282" cy="106" r="38" fill="#c9d1cd" opacity=".55"/>
+              <circle cx="282" cy="80" r="11" fill="#1d2523"/><text x="282" y="84.5" font-size="12" font-weight="700" text-anchor="middle" fill="#f2b34b" font-family="Inter,system-ui,sans-serif">Y</text>
+              <circle cx="257" cy="106" r="11" fill="#1d2523"/><text x="257" y="110.5" font-size="12" font-weight="700" text-anchor="middle" fill="#6aa8ff" font-family="Inter,system-ui,sans-serif">X</text>
+              <circle cx="307" cy="106" r="11" fill="#1d2523"/><text x="307" y="110.5" font-size="12" font-weight="700" text-anchor="middle" fill="#f0706a" font-family="Inter,system-ui,sans-serif">B</text>
+              <circle cx="282" cy="132" r="11" fill="#1d2523"/><text x="282" y="136.5" font-size="12" font-weight="700" text-anchor="middle" fill="#3fe0a0" font-family="Inter,system-ui,sans-serif">A</text>
+              <!-- centre: view / home / menu, plus the light bar -->
+              <rect x="166" y="98" width="14" height="9" rx="4.5" fill="#56625d"/>
+              <rect x="220" y="98" width="14" height="9" rx="4.5" fill="#56625d"/>
+              <circle cx="200" cy="80" r="12" fill="#1d2523"/>
+              <path d="M193.5 83.5a6.5 6.5 0 0 1 13 0z" fill="#3ddc84"/><path d="M195.6 77.6l-1.6-2.6m10.4 2.6 1.6-2.6" stroke="#3ddc84" stroke-width="1.4" stroke-linecap="round"/>
+              <rect x="186" y="122" width="28" height="4" rx="2" fill="#3ddc84" opacity=".9"/>
             </svg>
           </div>
         </div>
