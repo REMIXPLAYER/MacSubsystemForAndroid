@@ -28,8 +28,8 @@
 
 ## Starting Android
 
-1. A launcher (or the person) opens `msa://start`. The Subsystem launches QEMU on the image's copy-on-write disks (`vm/disk*.qcow2`, backed by the read-only image in `rom/`).
-2. It connects to adbd (RSA key in `adbkey`; the project's image doesn't prompt), waits for `sys.boot_completed`, and on the first boot marks Android as set up, keeps it awake and sets the time zone.
+1. A launcher (or the person) opens `msa://start`. The Subsystem launches QEMU on the image's copy-on-write disks (`vm/disk*.qcow2`, backed by the read-only image in `rom/`). First `GrubEnvironment` turns on the image's GRUB *Insecure ADB* setting (`android_insecure_adb=1` in `grubenv` on the FAT32 PERSIST partition, written into the overlay with `qemu-img`) and sets `grub_timeout=0` to skip GRUB's 10 s menu. jqssun's images need it: they're Android 16 user builds, whose setup wizard otherwise starts trade-in mode, in which adbd refuses everything but `tradeinmode` commands.
+2. It connects to adbd (RSA key in `adbkey`; neither image prompts), restarts Android once if an earlier boot left adbd in trade-in mode, waits for `sys.boot_completed`, and on the first boot marks Android as set up, keeps it awake and sets the time zone.
 3. It installs or updates `bridge.apk` and grants its notification listener, pushes `scrcpy-server.jar`, then marks itself *running*.
 4. Every 10 s it reads `apps.json` from the bridge and creates, refreshes or removes launchers (icons come from `icon/<package>`; adaptive icons are cropped onto the macOS icon grid). Every 3 s it reads `notifications.json` and posts new ones.
 
@@ -44,7 +44,7 @@ new_display=<window pixels>/<dpi> flex_display=true vd_system_decorations=false
 display_ime_policy=hide video_codec=h264 audio=false tunnel_forward=true
 ```
 
-It then opens `localabstract:scrcpy_<scid>` twice through ADB (video, then control; no port forwarding) and sends `START_APP <package>`. Video packets become `CMSampleBuffer`s (`H264SampleBuilder`) for an `AVSampleBufferDisplayLayer`, which decodes in hardware. Mouse buttons become touches, the wheel becomes scroll events, printable keys become text and the rest become Android keycodes. Resizing the window sends `RESIZE_DISPLAY`, so the Android display (and the app's layout) follows the window. `dpi = 160 × backing scale × App size`, so one Android dp is one Mac point at the default size.
+It then opens `localabstract:scrcpy_<scid>` twice through ADB (video, then control; no port forwarding), switches the new virtual display to fullscreen with `cmd window set-display-windowing-mode` (the image declares `android.hardware.type.pc`, so Android would otherwise open the app as a small freeform window) and sends `START_APP <package>`. Video packets become `CMSampleBuffer`s (`H264SampleBuilder`) for an `AVSampleBufferDisplayLayer`, which decodes in hardware. Mouse buttons become touches, the wheel becomes scroll events, printable keys become text and the rest become Android keycodes. Resizing the window sends `RESIZE_DISPLAY`, so the Android display (and the app's layout) follows the window. `dpi = 160 × backing scale × App size`, so one Android dp is one Mac point at the default size.
 
 Sound doesn't go through scrcpy: Android plays through the VM's `intel-hda` device, so all apps share one audio path.
 
@@ -58,22 +58,22 @@ Sound doesn't go through scrcpy: Android plays through the VM's `intel-hda` devi
 
 | Level | QEMU scheduling | Android cores online | Memory kept (balloon) | Android power | Window stream |
 |---|---|---|---|---|---|
-| Saver | `PRIO_DARWIN_BG` (efficiency cores, throttled I/O) | 25%, at least 2 | 60% | battery saver on | 30 fps, 6 Mb/s |
-| Balanced | normal | 50% | 85% | normal | 60 fps, 10 Mb/s |
-| Performance | normal | all | 100% | normal | 60 fps, 14 Mb/s |
-| Gaming | normal | all | 100% | fixed-performance mode, `cmd game mode performance <pkg>` | up to 120 fps, 20 Mb/s |
+| Saver | `PRIO_DARWIN_BG` (efficiency cores, throttled I/O) | 25%, at least 2 (userdebug image only) | 60% | battery saver on | 30 fps, 6 Mb/s |
+| Balanced | normal | 50% (userdebug image only) | 85% | normal | 60 fps, 10 Mb/s |
+| Standard | normal | all | 100% | normal (Android's defaults) | 60 fps, 10 Mb/s |
+| Performance | normal | all | 100% | fixed-performance mode, `cmd game mode performance <pkg>` | up to 120 fps, 20 Mb/s |
 
-Cores go offline with CPU hotplug (`su 0 sh -c 'echo 0 > /sys/devices/system/cpu/cpuN/online'`, available on the userdebug image); memory goes back through `-device virtio-balloon-pci` and QMP `balloon`; Android's settings through `cmd power set-mode` and `set-fixed-performance-mode-enabled`. The level is written to `status.json`; app windows read it when they open (frame rate, bitrate) and hold a latency-critical activity in Performance and Gaming.
+Cores go offline with CPU hotplug (`su 0 sh -c 'echo 0 > /sys/devices/system/cpu/cpuN/online'`). That needs root: adbd runs as shell (uid 2000), which can't write `cpuN/online`, and only the project's userdebug image has `su`. `PerformanceManager` asks `su 0 id -u` once per boot and skips hotplug when it fails, so on jqssun's user builds every core stays online and the other levers do the saving; memory goes back through `-device virtio-balloon-pci` and QMP `balloon`; Android's settings through `cmd power set-mode` and `set-fixed-performance-mode-enabled`. The level is written to `status.json`; app windows read it when they open (frame rate, bitrate) and hold a latency-critical activity in Performance.
 
-Modes map to levels as follows. Performance → Performance and Gaming → Gaming, always.
+Modes map to levels as follows. Standard → Standard and Performance → Performance, always. (Gaming was merged into Performance; a saved `game` mode reads as Performance.)
 
 *Power Saver* (a hybrid of saving and Smart): Saver when constrained (below) or on battery; otherwise Balanced while an Android app is in front, Saver when not. Android only runs while an app is open.
 
-*Smart* (stays ready) re-evaluates every 10 s and whenever the front app, power source, Low Power Mode or thermal state changes. It is *constrained* when Low Power Mode is on, the Mac is hot (thermal state serious or critical), the battery is under 20%, memory pressure is at warning or above (`kern.memorystatus_vm_pressure_level`), or other processes have used more than 70% of the processor for two samples in a row (host CPU ticks minus QEMU's own time from `proc_pid_rusage`, sampled at most every 5 s). Constrained → Saver; no Android window open → Saver; a game in front (the bridge reports `ApplicationInfo.category == CATEGORY_GAME`) → Gaming (Performance on battery); another Android app in front → Performance (Balanced on battery); Android windows open behind a Mac app → Balanced (Saver on battery).
+*Smart* (stays ready) re-evaluates every 10 s and whenever the front app, power source, Low Power Mode or thermal state changes. It is *constrained* when Low Power Mode is on, the Mac is hot (thermal state serious or critical), the battery is under 20%, memory pressure is at warning or above (`kern.memorystatus_vm_pressure_level`), or other processes have used more than 70% of the processor for two samples in a row (host CPU ticks minus QEMU's own time from `proc_pid_rusage`, sampled at most every 5 s). Constrained → Saver, except while an Android app is in front → Balanced (Saver's `PRIO_DARWIN_BG` starved the app in front: frames took seconds on SwiftShader and apps hit ANRs); no Android window open → Saver; a game in front (the bridge reports `ApplicationInfo.category == CATEGORY_GAME`) → Performance; another Android app in front → Performance (Balanced on battery); Android windows open behind a Mac app → Balanced (Saver on battery).
 
 ## When Android turns off
 
-`Subsystem.idleShutdownDelay()` decides how long Android may run with no launcher process: Power Saver 30 s (always, and Always Ready doesn't start it); *As needed* the chosen minutes; *Continuous* never; *Automatic* (default) never for Smart, Performance and Gaming. The check runs every 10 s and whenever the mode or setting changes.
+`Subsystem.idleShutdownDelay()` decides how long Android may run with no launcher process: Power Saver 30 s (always, and Always Ready doesn't start it); *As needed* the chosen minutes; *Continuous* never; *Automatic* (default) never for Smart, Standard and Performance. The check runs every 10 s and whenever the mode or setting changes.
 
 ## Storage clean-up
 

@@ -2,8 +2,9 @@
 //
 // Levers, all adjustable live without restarting Android:
 //   CPU      Android takes processor cores online/offline (CPU hotplug through
-//            `su`, available on the project's userdebug image), and QEMU runs as
-//            a macOS background task in Power Saver (efficiency cores, throttled I/O).
+//            `su`, only on the project's userdebug image: jqssun's user builds have
+//            no su, so their cores all stay online), and QEMU runs as a macOS
+//            background task in Saver (efficiency cores, throttled I/O).
 //   Memory   the virtio balloon (QMP "balloon") returns memory to macOS.
 //   Android  its battery saver (`cmd power set-mode`) and fixed-performance mode.
 //   Windows  frame rate and bitrate, read by app windows from status.json.
@@ -31,6 +32,7 @@ final class PerformanceManager {
     private var observers: [NSObjectProtocol] = []
     private var powerSource: CFRunLoopSource?
     private let work = DispatchQueue(label: "msa.performance", qos: .utility)
+    private let root = RootShell()
 
     private init() {}
 
@@ -39,6 +41,8 @@ final class PerformanceManager {
     /// Android is running: watch conditions and apply the current level.
     func start() {
         appliedLevel = nil
+        let root = root
+        work.async { root.available = nil }      // a new boot, maybe a different image
         observeOnce()
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { _ in
@@ -130,17 +134,19 @@ final class PerformanceManager {
 
     func resolve(_ mode: PerformanceMode, _ c: Conditions) -> PerformanceLevel {
         switch mode {
+        case .standard: return .standard
         case .performance: return .performance
-        case .game: return .game
         case .powerSaver:
             // Android only runs while an app is open (Subsystem.idleShutdownDelay); while it
             // does, it gets a little more room for the app in front when the Mac can spare it.
             if c.constrained || c.onBattery { return .saver }
             return c.androidInFront ? .balanced : .saver
         case .smart:
-            if c.constrained { return .saver }                   // the Mac needs its resources
+            // The Mac needs its resources, but the Android app in front stays usable:
+            // Saver's background priority starves it (frames of seconds, ANRs).
+            if c.constrained { return c.androidInFront ? .balanced : .saver }
             if !c.windowsOpen { return .saver }                  // ready, idling in the background
-            if c.gameInFront { return c.onBattery ? .performance : .game }
+            if c.gameInFront { return .performance }
             if c.androidInFront { return c.onBattery ? .balanced : .performance }
             return c.onBattery ? .saver : .balanced              // windows open, another Mac app in front
         }
@@ -164,6 +170,7 @@ final class PerformanceManager {
     // MARK: Applying
 
     private func apply(_ level: PerformanceLevel, pid: pid_t, adb: ADBConnection?, cpuCount: Int, memoryMB: Int) {
+        let root = root
         work.async {
             // 1. QEMU's scheduling class: background (efficiency cores) or normal.
             if pid > 0 {
@@ -177,8 +184,9 @@ final class PerformanceManager {
             QMPClient.execute("balloon", arguments: ["value": min(targetMB, memoryMB) * 1_048_576])
 
             guard let adb else { return }
-            // 3. Processor cores online inside Android (cpu0 always stays on).
-            if cpuCount > 1 {
+            // 3. Processor cores online inside Android (cpu0 always stays on). Needs root:
+            //    adbd runs as shell (uid 2000), which can't write cpuN/online.
+            if cpuCount > 1, root.check(adb) {
                 let online = max(level == .saver ? min(2, cpuCount) : 1, Int((Double(cpuCount) * level.cpuShare).rounded()))
                 let script = (1..<cpuCount).map { "echo \($0 < online ? 1 : 0) > /sys/devices/system/cpu/cpu\($0)/online" }
                     .joined(separator: "; ")
@@ -189,6 +197,22 @@ final class PerformanceManager {
             _ = try? adb.exec("cmd power set-mode \(level.androidBatterySaver ? 1 : 0)", timeout: 10)
             _ = try? adb.exec("cmd power set-fixed-performance-mode-enabled \(level.androidFixedPerformance)", timeout: 10)
         }
+    }
+}
+
+/// Whether `su 0` works inside Android: yes on the project's userdebug image, no on
+/// jqssun's user builds. Asked once per boot; only used on PerformanceManager's queue.
+private final class RootShell: @unchecked Sendable {
+    var available: Bool?
+
+    func check(_ adb: ADBConnection) -> Bool {
+        if let available { return available }
+        // Throws while ADB isn't ready yet; ask again next time.
+        guard let uid = try? adb.execString("su 0 id -u", timeout: 10) else { return false }
+        let found = uid == "0"
+        available = found
+        if !found { NSLog("Performance: Android has no su, so its processor cores all stay online") }
+        return found
     }
 }
 

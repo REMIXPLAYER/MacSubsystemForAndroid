@@ -32,7 +32,7 @@ final class SubsystemSettings: ObservableObject {
         }
         var detail: String {
             switch self {
-            case .automatic: return "Follows the performance mode: Smart, Performance and Gaming keep Android ready (Smart lets it idle at the lowest level). Power Saver turns it off as soon as no app is open."
+            case .automatic: return "Follows the performance mode: Smart, Standard and Performance keep Android ready (Smart lets it idle at the lowest level). Power Saver turns it off as soon as no app is open."
             case .asNeeded: return "Android starts when you open an Android app and turns off a few minutes after you close the last one. Apps take longer to open the first time."
             case .continuous: return "Android stays ready in the background, so apps open quickly. Uses more memory and battery. Power Saver still turns it off when no app is open."
             }
@@ -81,7 +81,7 @@ final class SubsystemSettings: ObservableObject {
         displayDensity = defaults.object(forKey: "displayDensity") as? Double ?? 1.0
         showSystemApps = defaults.bool(forKey: "showSystemApps")
         notifications = defaults.object(forKey: "notifications") as? Bool ?? true
-        performanceMode = PerformanceMode(rawValue: defaults.string(forKey: "performanceMode") ?? "") ?? .smart
+        performanceMode = PerformanceMode(saved: defaults.string(forKey: "performanceMode") ?? "") ?? .smart
         controllers = defaults.object(forKey: "controllers") as? Bool ?? true
         autoCleanup = defaults.object(forKey: "autoCleanup") as? Bool ?? true
         startAtLogin = SMAppService.mainApp.status == .enabled

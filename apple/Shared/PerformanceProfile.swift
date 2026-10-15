@@ -6,21 +6,23 @@
 //                 the Saver level unless an Android app is in front and the Mac
 //                 has power and resources to spare.
 //   Smart         Android stays ready in the background and adapts all the time:
-//                 full speed for the app in front, Gaming for a game, and the
-//                 Saver level as soon as other Mac apps need the processor or
-//                 memory, the battery runs low, Low Power Mode is on or the Mac
-//                 gets hot.
-//   Performance   every core and all memory, always.
-//   Gaming        Performance plus Android's fixed-performance and game modes,
-//                 up to 120 fps and a higher-quality stream.
+//                 full speed for the app in front, and the Saver level as soon as
+//                 other Mac apps need the processor or memory, the battery runs
+//                 low, Low Power Mode is on or the Mac gets hot.
+//   Standard      Android as is: nothing tuned, every core and all memory,
+//                 Android's own power settings, 60 fps windows.
+//   Performance   the most of everything, always: every core and all memory,
+//                 Android's fixed-performance and game modes, up to 120 fps and
+//                 a higher-quality stream.
 //
 // Levels and what they change:
 //   Saver         QEMU as a background task (efficiency cores, low I/O priority),
 //                 2 cores online in Android, 60% memory (balloon), Android's
 //                 battery saver, 30 fps windows.
 //   Balanced      half the cores, 85% memory, 60 fps.
-//   Performance   all cores and memory, normal priority, 60 fps.
-//   Game          Performance + fixed-performance mode, 120 fps, higher bitrate.
+//   Standard      all cores and memory, normal priority, Android's defaults, 60 fps.
+//   Performance   Standard + fixed-performance and game modes, 120 fps, higher
+//                 bitrate, latency-critical windows.
 //
 // The Subsystem applies the level to the VM; app windows read it from
 // status.json when they open (frame rate, bitrate, game tweaks).
@@ -32,17 +34,22 @@ import Foundation
 enum PerformanceMode: String, Codable, CaseIterable, Identifiable, Sendable {
     case powerSaver
     case smart
+    case standard
     case performance
-    case game
 
     var id: String { rawValue }
+
+    /// Reads a saved mode; Gaming was merged into Performance.
+    init?(saved: String) {
+        self.init(rawValue: saved == "game" ? "performance" : saved)
+    }
 
     var title: String {
         switch self {
         case .powerSaver: return "Power Saver"
         case .smart: return "Smart"
+        case .standard: return "Standard"
         case .performance: return "Performance"
-        case .game: return "Gaming"
         }
     }
 
@@ -50,8 +57,8 @@ enum PerformanceMode: String, Codable, CaseIterable, Identifiable, Sendable {
         switch self {
         case .powerSaver: return "leaf"
         case .smart: return "wand.and.stars"
+        case .standard: return "cpu"
         case .performance: return "gauge.with.dots.needle.100percent"
-        case .game: return "gamecontroller"
         }
     }
 
@@ -61,10 +68,10 @@ enum PerformanceMode: String, Codable, CaseIterable, Identifiable, Sendable {
             return "Android only runs while an Android app is open, and adapts while it does: frugal by default, a little faster for the app in front when your Mac has power to spare."
         case .smart:
             return "Stays ready so apps open instantly, and adapts all the time: full speed for the app you're using, and power saving as soon as other apps need your Mac or the battery runs low."
+        case .standard:
+            return "Android runs as it is, with nothing tuned: every processor core, all of its memory and its own power settings. Stays ready in the background."
         case .performance:
-            return "Maximum performance: every processor core and all of Android's memory, all the time."
-        case .game:
-            return "Maximum performance tuned for games: Android's game optimizations, up to 120 fps and lower input latency."
+            return "Maximum performance, all the time: every core and all of Android's memory, its game optimizations, up to 120 fps and lower input latency."
         }
     }
 }
@@ -73,15 +80,15 @@ enum PerformanceMode: String, Codable, CaseIterable, Identifiable, Sendable {
 enum PerformanceLevel: String, Codable, Sendable {
     case saver
     case balanced
+    case standard
     case performance
-    case game
 
     var title: String {
         switch self {
         case .saver: return "Saving power"
         case .balanced: return "Balanced"
+        case .standard: return "Standard"
         case .performance: return "Performance"
-        case .game: return "Gaming"
         }
     }
 
@@ -90,7 +97,7 @@ enum PerformanceLevel: String, Codable, Sendable {
         switch self {
         case .saver: return 0.25
         case .balanced: return 0.5
-        case .performance, .game: return 1
+        case .standard, .performance: return 1
         }
     }
 
@@ -99,29 +106,30 @@ enum PerformanceLevel: String, Codable, Sendable {
         switch self {
         case .saver: return 0.6
         case .balanced: return 0.85
-        case .performance, .game: return 1
+        case .standard, .performance: return 1
         }
     }
 
     /// QEMU runs as a background task (efficiency cores, throttled I/O).
     var backgroundPriority: Bool { self == .saver }
     var androidBatterySaver: Bool { self == .saver }
-    var androidFixedPerformance: Bool { self == .game }
+    var androidFixedPerformance: Bool { self == .performance }
+    /// Windows hold a latency-critical activity and ask for Android's game mode.
+    var latencyCritical: Bool { self == .performance }
 
     var maxFPS: Int {
         switch self {
         case .saver: return 30
-        case .balanced, .performance: return 60
-        case .game: return 120
+        case .balanced, .standard: return 60
+        case .performance: return 120
         }
     }
 
     var videoBitRate: Int {
         switch self {
         case .saver: return 6_000_000
-        case .balanced: return 10_000_000
-        case .performance: return 14_000_000
-        case .game: return 20_000_000
+        case .balanced, .standard: return 10_000_000
+        case .performance: return 20_000_000
         }
     }
 }

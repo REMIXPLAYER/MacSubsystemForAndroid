@@ -162,6 +162,8 @@ final class Subsystem: ObservableObject {
         stopRequested = false
         lastActivity = Date()
         setState(.starting("Starting Android…"))
+        // Before touching the disks: a QEMU left behind still holds them.
+        VirtualMachine.killStaleInstance()
 
         let configuration: VirtualMachine.Configuration
         do {
@@ -216,13 +218,28 @@ final class Subsystem: ObservableObject {
         let key = try ADBKey.shared()
         let deadline = Date().addingTimeInterval(240)
         var connection: ADBConnection?
+        var restartedFromTradeInMode = false
         while connection == nil {
             let candidate = ADBConnection(port: AppConfig.adbPort, key: key)
             do {
                 try candidate.connect(timeout: 3, authorizationTimeout: approvalTimeout)
+                if AndroidSetup.isInTradeInMode(candidate) {
+                    // Left over from a boot without ADB turned on in GRUB; Android leaves
+                    // trade-in mode during this boot, and adbd follows after a restart.
+                    guard !restartedFromTradeInMode else { throw AndroidSetup.Failure.tradeInMode }
+                    restartedFromTradeInMode = true
+                    progress("Restarting Android…")
+                    AndroidSetup.restartFromTradeInMode(candidate)
+                    candidate.close()
+                    Thread.sleep(forTimeInterval: 5)
+                    continue
+                }
                 connection = candidate
             } catch ADBError.unauthorized {
                 throw ADBError.unauthorized
+            } catch AndroidSetup.Failure.tradeInMode {
+                candidate.close()
+                throw AndroidSetup.Failure.tradeInMode
             } catch {
                 candidate.close()
                 if Date() > deadline { throw ADBError.timeout("Android didn't start") }
@@ -391,7 +408,7 @@ final class Subsystem: ObservableObject {
     ///
     ///   Power Saver            30 s, always (Android never idles in the background)
     ///   As needed              the idle time chosen in Settings
-    ///   Continuous, Automatic  keep ready (Smart, Performance and Gaming stay ready;
+    ///   Continuous, Automatic  keep ready (Smart, Standard and Performance stay ready;
     ///                          Smart drops to the Saver level while idle)
     func idleShutdownDelay() -> TimeInterval? {
         if settings.performanceMode == .powerSaver { return 30 }

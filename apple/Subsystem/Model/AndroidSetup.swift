@@ -31,11 +31,13 @@ enum AndroidBridge {
 enum AndroidSetup {
     enum Failure: LocalizedError {
         case bootTimeout
+        case tradeInMode
         case bridgeMissing
         case bridgeInstall(String)
         var errorDescription: String? {
             switch self {
             case .bootTimeout: return "Android didn't finish starting."
+            case .tradeInMode: return "Android's ADB is in trade-in mode, so this Mac can't set it up. Reset Android in Settings and try again."
             case .bridgeMissing: return "bridge.apk is missing from this copy of \(AppConfig.displayName)."
             case .bridgeInstall(let output): return "Couldn't install the bridge app: \(output)"
             }
@@ -43,6 +45,28 @@ enum AndroidSetup {
     }
 
     static let scrcpyServerPath = "/data/local/tmp/msa-scrcpy-server.jar"
+
+    /// Android 16's trade-in mode: adbd refuses every service but `shell:tradeinmode …`
+    /// (see GrubEnvironment.swift).
+    static func isInTradeInMode(_ adb: ADBConnection) -> Bool {
+        do {
+            _ = try adb.exec("true", timeout: 10)
+            return false
+        } catch ADBError.serviceUnavailable {
+            guard let stream = try? adb.openStream("shell:tradeinmode getstatus") else { return false }
+            stream.close()
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Restart Android, one of the few things trade-in mode allows.
+    static func restartFromTradeInMode(_ adb: ADBConnection) {
+        guard let stream = try? adb.openStream("shell:tradeinmode wait-until-ready reboot") else { return }
+        defer { stream.close() }
+        _ = try? stream.readToEnd(timeout: 60)
+    }
 
     static func waitForBoot(_ adb: ADBConnection, timeout: TimeInterval = 300) throws {
         let deadline = Date().addingTimeInterval(timeout)

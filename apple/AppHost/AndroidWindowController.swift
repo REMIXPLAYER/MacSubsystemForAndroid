@@ -114,7 +114,7 @@ final class AndroidWindowController: NSWindowController, NSWindowDelegate {
         // The performance level sets how smooth (and how costly) the stream is.
         configuration.maxFPS = min(level.maxFPS, max(screenFPS, 30))
         configuration.bitRate = level.videoBitRate
-        if level == .game {
+        if level.latencyCritical {
             // Ask Android's game manager for its performance mode (games that support it).
             _ = try? connection.exec("cmd game mode performance \(package)", timeout: 5)
         }
@@ -210,7 +210,7 @@ final class AndroidWindowController: NSWindowController, NSWindowDelegate {
     private func beginActivity(for level: PerformanceLevel) {
         if let activity { ProcessInfo.processInfo.endActivity(activity) }
         activity = nil
-        if level == .performance || level == .game {
+        if level.latencyCritical {
             activity = ProcessInfo.processInfo.beginActivity(options: [.userInitiated, .latencyCritical],
                                                             reason: "Streaming an Android app")
         }

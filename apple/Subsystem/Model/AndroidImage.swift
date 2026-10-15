@@ -68,7 +68,9 @@ struct AndroidImage: Codable, Equatable, Sendable {
 
     // MARK: Overlays
 
-    /// The disks Android runs on, created on first use.
+    /// The disks Android runs on, created on first use, with ADB turned on and the menu
+    /// skipped in GRUB's settings (see GrubEnvironment.swift). Call it only while QEMU
+    /// isn't running.
     func runtimeDisks() throws -> [URL] {
         var urls: [URL] = []
         for (index, disk) in disks.enumerated() {
@@ -79,6 +81,7 @@ struct AndroidImage: Codable, Equatable, Sendable {
             }
             urls.append(overlay)
         }
+        try GrubEnvironment.configure(urls)
         return urls
     }
 

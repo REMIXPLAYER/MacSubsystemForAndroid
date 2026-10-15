@@ -115,15 +115,39 @@ final class ScrcpySession: @unchecked Sendable {
         videoStream = video
 
         _ = try video.readExactly(1, timeout: 10)       // dummy byte
+        // The server sends the device name only once every socket is connected.
+        controlStream = try connection.openStream("localabstract:\(socketName)", timeout: 5)
         _ = try video.readExactly(64, timeout: 10)      // device name
         let codec = try video.readExactly(4, timeout: 30).be32(0)
         guard codec == 0x6832_3634 else { throw Failure.codec(codec) } // "h264"
 
-        controlStream = try connection.openStream("localabstract:\(socketName)", timeout: 5)
-
         startVideoReader(video)
         if let control = controlStream { startDeviceMessageReader(control) }
+        fillDisplay()
         startApp(configuration.package)
+    }
+
+    /// The image declares android.hardware.type.pc, so Android makes every display a
+    /// freeform desktop and the app would open as a small window inside ours. Switch the
+    /// virtual display to fullscreen before the app starts so its tasks fill it.
+    private func fillDisplay() {
+        let deadline = Date().addingTimeInterval(5)
+        while Date() < deadline {
+            if let id = virtualDisplayID() {
+                _ = try? connection.exec("cmd window set-display-windowing-mode -d \(id) 1", timeout: 5)
+                return
+            }
+            Thread.sleep(forTimeInterval: 0.05)
+        }
+    }
+
+    /// The id from the server's "New display: 800x1496/320 (id=5)" log line.
+    private func virtualDisplayID() -> Int? {
+        let log = currentServerLog()
+        guard let line = log.range(of: "New display:"),
+              let open = log.range(of: "(id=", range: line.upperBound..<log.endIndex),
+              let close = log[open.upperBound...].firstIndex(of: ")") else { return nil }
+        return Int(log[open.upperBound..<close])
     }
 
     func stop() {
