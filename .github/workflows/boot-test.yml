@@ -98,6 +98,12 @@ jobs:
           done
           {
             echo "== timeline"; cat $LOG
+            A="adb -s 127.0.0.1:58526"
+            echo "== graphics props"
+            timeout 60 $A shell 'getprop | grep -iE "graphics|egl|vulkan|hwui|opengles|boot.hardware|adb|sys.boot|init.svc.surfaceflinger|cmdline"' 2>&1 | cut -c1-160 | head -40
+            echo "== kernel cmdline"; timeout 30 $A shell cat /proc/cmdline 2>&1 | cut -c1-400
+            echo "== crash log"; timeout 60 $A logcat -b crash -d 2>&1 | grep -vE "^\s*$" | cut -c1-200 | head -60
+            echo "== surfaceflinger log"; timeout 60 $A logcat -d 2>&1 | grep -iE "surfaceflinger|EGL|gralloc|mesa|virgl|composer" | cut -c1-200 | tail -60
             if [ "$STATE" = device ]; then
               echo "== props"
               for p in ro.build.fingerprint ro.build.version.release ro.adb.secure ro.debuggable service.adb.tcp.port persist.adb.tcp.port ro.boot.hardware; do
@@ -117,7 +123,7 @@ jobs:
         run: |
           [ -f report.txt ] || exit 0
           # Annotations are limited in size: split the report into a few.
-          split -l 45 report.txt part-
+          split -l 40 report.txt part-
           for f in part-*; do
             echo "::notice title=Boot test ($(basename $f))::$(sed 's/%/%25/g; s/\r//g' "$f" | cut -c1-300 | awk 'BEGIN{ORS="%0A"} {print}')"
           done
