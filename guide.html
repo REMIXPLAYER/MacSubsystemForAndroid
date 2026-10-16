@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guide: Run Android Apps on Mac with Mac Android Subsystem</title>
+  <meta name="description" content="Using Mac Android Subsystem to run Android apps on your Mac: setup, installing apps, app windows, performance modes, Always Ready, game controllers, privacy, ADB, troubleshooting and building it yourself.">
+  <link rel="canonical" href="https://harkhowalia-1.github.io/MacSubsystemForAndroid/guide.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Mac Android Subsystem">
+  <meta property="og:title" content="Guide: Run Android Apps on Mac with Mac Android Subsystem">
+  <meta property="og:description" content="Using Mac Android Subsystem to run Android apps on your Mac: setup, installing apps, app windows, performance modes, Always Ready, game controllers, privacy, ADB, troubleshooting and building it yourself.">
+  <meta property="og:url" content="https://harkhowalia-1.github.io/MacSubsystemForAndroid/guide.html">
+  <meta property="og:image" content="https://harkhowalia-1.github.io/MacSubsystemForAndroid/assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://harkhowalia-1.github.io/MacSubsystemForAndroid/assets/og-image.png">
+  <meta name="theme-color" content="#07110e">
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body class="page">
+  <header class="topbar">
+    <div class="container">
+      <a class="logo" href="./"><img src="assets/icon-512.png" alt="">Mac Android Subsystem</a>
+      <nav class="topnav" aria-label="Main">
+        <a href="./#modes" class="hide-sm">Modes</a>
+        <a href="./#status" class="hide-sm">Status</a>
+        <a href="https://github.com/harkhowalia-1/MacSubsystemForAndroid">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <div class="container">
+      <h1>Guide</h1>
+      <p>Everything about running Android apps on your Mac with Mac Android Subsystem.</p>
+    </div>
+  </div>
+
+  <main class="container docs">
+    <nav aria-label="Guide sections">
+      <ol>
+        <li><a href="#start">Getting started</a></li>
+        <li><a href="#image">The Android image</a></li>
+        <li><a href="#apps">Installing apps</a></li>
+        <li><a href="#windows">App windows</a></li>
+        <li><a href="#always">Always Ready</a></li>
+        <li><a href="#modes">Performance modes</a></li>
+        <li><a href="#controllers">Game controllers</a></li>
+        <li><a href="#privacy">Privacy</a></li>
+        <li><a href="#storage">Storage and clean-up</a></li>
+        <li><a href="#adb">Developers and ADB</a></li>
+        <li><a href="#trouble">Troubleshooting</a></li>
+        <li><a href="#architecture">How it works</a></li>
+        <li><a href="#build">Building it yourself</a></li>
+        <li><a href="#legal">Licences and trademarks</a></li>
+      </ol>
+    </nav>
+
+    <article>
+      <section id="start">
+        <h2>Getting started</h2>
+        <p>Mac Android Subsystem runs Android apps on your Mac as if they were Mac apps. Android runs in a small virtual machine you never see; each Android app appears as its own Mac app, with its own window, Dock icon and place in Launchpad.</p>
+        <ol>
+          <li>Download the DMG, open it and drag <strong>Mac Android Subsystem</strong> to Applications.</li>
+          <li>Open it. The setup window downloads Android (about 1.5 GB) and prepares it.</li>
+          <li>Optionally tick <em>Install F-Droid</em> (an open-source app store) and <em>Always ready</em>.</li>
+          <li>Afterwards the Subsystem lives in the menu bar. Its icon shows whether Android is off, starting or running.</li>
+        </ol>
+        <div class="callout"><p>You need a Mac with Apple silicon (M1 or later) and macOS 15 or later. Android uses up to a quarter of your memory by default (at most 6 GB) and about 8 GB of disk.</p></div>
+      </section>
+
+      <section id="image">
+        <h2>The Android image</h2>
+        <p>The Subsystem downloads LineageOS 24 (Android 17) built for LineageOS's <code>virtio_arm64only</code> virtual-machine target. It contains no Google apps, which keeps it small and means no Google account is needed. This project's build changes one thing: Android doesn't ask "Allow USB debugging?", because nobody sees Android's own screen and ADB only listens on 127.0.0.1.</p>
+        <p>The image itself is never modified. Your apps and data live in separate copy-on-write disks, so <em>Reset Android</em> is instant and a new image never needs re-downloading anything else.</p>
+        <p>Settings › Advanced › <em>Use an Image File</em> accepts any LineageOS <code>UTM-VM-lineage-…-virtio_arm64only.zip</code> or unpacked <code>.utm</code> folder. If an image does ask to allow USB debugging, the Subsystem shows Android's screen once: tick <em>Always allow from this computer</em> and click <em>Allow</em>.</p>
+      </section>
+
+      <section id="apps">
+        <h2>Installing apps</h2>
+        <ul>
+          <li><strong>Double-click</strong> an <code>.apk</code>, <code>.apks</code>, <code>.apkm</code> or <code>.xapk</code> file. Android starts if needed, the app installs and opens.</li>
+          <li><strong>Drag</strong> files onto Settings › Apps, or use <em>Install Android App…</em> in the menu bar.</li>
+          <li><strong>F-Droid</strong> installs with one click from Settings › Apps. Apps you install inside Android appear on the Mac within seconds.</li>
+        </ul>
+        <p>Installed apps appear in <code>~/Applications/Android Apps</code>, so Launchpad and Spotlight find them and you can keep them in the Dock. To uninstall, right-click an app in Settings › Apps.</p>
+        <p>Apps that require Google Play services, and apps built only for Intel Android devices, won't run.</p>
+      </section>
+
+      <section id="windows">
+        <h2>App windows</h2>
+        <p>Each window is its own Android display. Resizing the window resizes the display, so apps adapt like on a tablet.</p>
+        <table>
+          <thead><tr><th>To</th><th>Do this</th></tr></thead>
+          <tbody>
+            <tr><td>Tap, swipe</td><td>Click, drag</td></tr>
+            <tr><td>Scroll</td><td>Trackpad or mouse wheel</td></tr>
+            <tr><td>Go back</td><td>The ‹ button in the title bar, <kbd>⌘[</kbd> or <kbd>Esc</kbd></td></tr>
+            <tr><td>Copy, paste</td><td><kbd>⌘C</kbd>, <kbd>⌘V</kbd> (Android's clipboard syncs to the Mac automatically)</td></tr>
+            <tr><td>Restart a stuck app</td><td>View › Restart</td></tr>
+          </tbody>
+        </table>
+        <p>Settings › Advanced has an <em>App size</em> slider and an option to show Android's on-screen keyboard.</p>
+      </section>
+
+      <section id="always">
+        <h2>Always Ready</h2>
+        <p>Turn on <strong>Always Ready</strong> (in the menu bar, the setup window or Settings › System) and the Subsystem starts when you log in and keeps Android running in the background. Android apps then open in about a second, as fast as Mac apps.</p>
+        <p>At login it stays quietly in the menu bar. The menu bar item offers:</p>
+        <ul>
+          <li>Android's status and the current performance level</li>
+          <li>Start, Restart and Turn Off Android</li>
+          <li>The four performance modes</li>
+          <li>Always Ready on or off</li>
+          <li>Open an Android app, install one</li>
+          <li>Settings and Quit (quitting turns Android off cleanly)</li>
+        </ul>
+        <h3>When the last Android app closes</h3>
+        <p>Settings › System decides what happens then:</p>
+        <table>
+          <thead><tr><th>Setting</th><th>What happens</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Automatic</strong> (default)</td><td>Smart, Standard and Performance keep Android ready; Power Saver turns it off when the last app closes (below).</td></tr>
+            <tr><td><strong>As needed</strong></td><td>Android turns off a few minutes after the last app closes (you choose how many).</td></tr>
+            <tr><td><strong>Continuous</strong></td><td>Android stays ready.</td></tr>
+          </tbody>
+        </table>
+        <div class="callout"><p>In <strong>Power Saver</strong> mode Android never runs without an app open: it turns off 30 seconds after the last Android app closes, whatever is chosen here, and Always Ready doesn't start it at login. The short wait means closing and reopening an app doesn't cost a restart.</p></div>
+      </section>
+
+      <section id="modes">
+        <h2>Performance modes</h2>
+        <p>Pick a mode in the menu bar or Settings › Performance. Modes apply while Android runs, without restarting it.</p>
+        <table>
+          <thead><tr><th>Mode</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Power Saver</strong></td><td>A hybrid of saving power and Smart. Android only runs while an Android app is open. While it does, it saves power by default (QEMU as a background task on the efficiency cores, two processor cores online in Android, 40% of its memory back to macOS, Android's battery saver on, 30 fps windows) and steps up to Balanced for the Android app in front when the Mac is plugged in and isn't busy.</td></tr>
+            <tr><td><strong>Smart</strong></td><td>Keeps Android ready in the background and adapts every few seconds and whenever something changes: full speed for what you're using, and power saving as soon as other apps need the Mac or the battery runs low (see below).</td></tr>
+            <tr><td><strong>Standard</strong></td><td>Android as it is, with nothing tuned: every core and all of its memory at normal priority, and Android's own power settings. Android stays ready.</td></tr>
+            <tr><td><strong>Performance</strong></td><td>Maximum performance, all the time: every core and all of Android's memory, Android's fixed-performance mode and game mode for the game in front, a higher-quality stream and up to 120 fps on ProMotion displays. Also keeps macOS from throttling the app window.</td></tr>
+          </tbody>
+        </table>
+        <h3>How Smart decides</h3>
+        <table>
+          <thead><tr><th>When</th><th>Level</th></tr></thead>
+          <tbody>
+            <tr><td>Other apps are using most of the processor, memory is tight, Low Power Mode is on, the Mac is hot, or the battery is below 20%</td><td>Saving power (Balanced for the Android app in front, so it stays usable)</td></tr>
+            <tr><td>No Android app window open</td><td>Saving power (Android stays ready)</td></tr>
+            <tr><td>A game is in front</td><td>Performance</td></tr>
+            <tr><td>Another Android app is in front</td><td>Performance (Balanced on battery)</td></tr>
+            <tr><td>Android windows open, a Mac app in front</td><td>Balanced (saving power on battery)</td></tr>
+          </tbody>
+        </table>
+        <p>Balanced keeps half the cores and 85% of the memory at 60 fps. Settings › Performance sets the most Android may use; changing those limits takes effect the next time Android starts.</p>
+        <div class="callout"><p>Taking processor cores offline needs the project's own Android image (a <code>userdebug</code> build). With other images, the modes still change priority, memory, Android's power settings and frame rate.</p></div>
+      </section>
+
+      <section id="controllers">
+        <h2>Game controllers</h2>
+        <p>Pair a controller in System Settings › Bluetooth, or plug it in. Any controller macOS supports works: Xbox Wireless, PlayStation DualSense and DualShock 4, Nintendo Switch Pro and MFi controllers.</p>
+        <p>When an Android app's window is in front, each controller appears inside Android as a standard gamepad (an Xbox 360-style pad, which every Android game supports). Sticks, analog triggers, the d-pad and all buttons work, for up to eight controllers. Switch to another Android window and the controller follows.</p>
+        <p>To turn this off, use Settings › Performance › <em>Use game controllers in Android games</em>.</p>
+      </section>
+
+      <section id="privacy">
+        <h2>Privacy</h2>
+        <p>Settings › Privacy works like Privacy &amp; Security on your Mac. It lists Camera, Microphone, Location, Contacts, Calendars, Photos &amp; Videos, Music &amp; Audio, Files, Notifications, Phone, Call Logs, Messages, Nearby Devices, Body Sensors and Physical Activity, with the Android apps that asked for each. Turn an app's access on or off with its switch; Android applies it right away. You can also right-click an app in Settings › Apps and choose <em>Privacy…</em> to see everything that one app may use.</p>
+        <p>A lock means Android itself manages that permission. Turning location on allows it while the app is in use; turning it off also removes background access.</p>
+        <p>What Android can actually reach on your Mac: the microphone only when <em>Let Android use this Mac's microphone</em> is on (Privacy › Microphone or Settings › System; it applies the next time Android starts). Android has no camera, location source, phone service or body sensors on a Mac yet, so apps get nothing from those even when allowed.</p>
+      </section>
+
+      <section id="storage">
+        <h2>Storage and clean-up</h2>
+        <p>Settings › Storage shows how much space the Android image, Android's apps and data, the launchers and everything else use. With <em>Clean up automatically</em> on (the default), the Subsystem tidies up at launch, every six hours and after Android turns off:</p>
+        <ul>
+          <li>finished and abandoned downloads, leftovers from installing apps and Android images, and old Android images;</li>
+          <li>icons of apps you removed, old notification images, and logs over 2 MB;</li>
+          <li>once a day, Android trims its storage (<code>sm fstrim</code>), so space Android frees is given back to your Mac.</li>
+        </ul>
+        <p>When your Mac has less than 15 GB free, it also clears Android apps' caches and, while Android is off, compacts Android's disks. Compacting also runs weekly when the Mac is plugged in. <em>Clean Up Now</em> does everything at once.</p>
+      </section>
+
+      <section id="adb">
+        <h2>Developers and ADB</h2>
+        <p>ADB listens on <code>127.0.0.1:58526</code>, and only on your Mac. Turn on Developer mode in Settings › Advanced to see it, then:</p>
+        <pre><code>adb connect 127.0.0.1:58526</code></pre>
+        <p>Android Studio lists it like a device. The project's image is a <code>userdebug</code> build, so <code>adb root</code> works.</p>
+      </section>
+
+      <section id="trouble">
+        <h2>Troubleshooting</h2>
+        <ul>
+          <li><strong>"Port 58526 is in use"</strong>: another Android emulator or ADB tool holds the port. Quit it and start Android again.</li>
+          <li><strong>A window stays on "Starting Android…"</strong>: open the menu bar item to see the status. Settings › Advanced › <em>Show Log</em> and <em>Show Android Console</em> say what happened.</li>
+          <li><strong>A window is black</strong>: the app may have closed itself. Use View › Restart, or close and reopen the window.</li>
+          <li><strong>Apps are missing from Launchpad</strong>: Settings › Advanced › <em>Rebuild App Launchers</em>.</li>
+          <li><strong>A controller doesn't respond</strong>: click the game's window so it's in front, and check the controller works in System Settings › Game Controllers.</li>
+          <li><strong>macOS blocks the first launch</strong>: builds without a Developer ID need right-click › Open the first time.</li>
+          <li>To see Android's own home screen, turn on <em>Show Android's own screen</em> in Settings › Advanced and restart Android.</li>
+        </ul>
+      </section>
+
+      <section id="architecture">
+        <h2>How it works</h2>
+        <ul>
+          <li><strong>The Subsystem app</strong> runs QEMU with Apple's Hypervisor framework (<code>-accel hvf</code>), forwards ADB to 127.0.0.1:58526, and talks to Android with its own ADB client.</li>
+          <li><strong>A bridge app inside Android</strong> reports installed apps, their icons and notifications.</li>
+          <li><strong>Launchers</strong> in <code>~/Applications/Android Apps</code> are small Mac apps, one per Android app, so each has its own Dock icon.</li>
+          <li><strong>Each window</strong> starts the scrcpy server inside Android with a new virtual display for its app, decodes the H.264 stream in hardware, and sends touches, keys, scroll, clipboard and controller input back.</li>
+          <li><strong>Performance modes</strong> adjust QEMU's scheduling class, a memory balloon, Android's online cores and power settings, and the stream's frame rate.</li>
+        </ul>
+        <p>The source's <code>docs/ARCHITECTURE.md</code> has the full picture.</p>
+      </section>
+
+      <section id="build">
+        <h2>Building it yourself</h2>
+        <p>On a Mac with Xcode 16 or later and Homebrew:</p>
+        <pre><code>brew install xcodegen qemu dylibbundler
+android/bridge/build.sh                 # bridge.apk (needs ANDROID_HOME and a JDK)
+core/scripts/fetch-scrcpy-server.sh     # scrcpy server 5.0.1, checksum-verified
+core/scripts/bundle-qemu.sh             # optional while developing
+cd apple &amp;&amp; xcodegen generate &amp;&amp; open MacSubsystemForAndroid.xcodeproj</code></pre>
+        <p>The Android image is built on Linux by <code>rom/build-rom.sh</code> (about 300 GB of disk, 32 GB of RAM, several hours) or by the <em>Build Android image</em> workflow on a self-hosted runner.</p>
+      </section>
+
+      <section id="legal">
+        <h2>Licences and trademarks</h2>
+        <p>Mac Android Subsystem is free software under the GNU GPL v3. It bundles QEMU (GPLv2, run as a separate program) and the scrcpy server (Apache 2.0), and downloads LineageOS. NOTICE.md in the source lists each component and where to get its source.</p>
+        <p>It is an independent project, not made, affiliated with or endorsed by Google, Apple or the LineageOS project. Android is a trademark of Google LLC. The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons 3.0 Attribution License</a>.</p>
+      </section>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <nav aria-label="Footer">
+        <a href="./">Home</a>
+        <a href="https://github.com/harkhowalia-1/MacSubsystemForAndroid">Source code</a>
+        <a href="https://github.com/harkhowalia-1/MacSubsystemForAndroid/releases">Releases</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://harkhowalia-1.github.io/MacSubsystemForAndroid/sitemap.xml
