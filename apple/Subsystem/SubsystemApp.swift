@@ -178,18 +178,32 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         window.setFrameAutosaveName("SettingsWindow")
         super.init(window: window)
         window.delegate = self
-        window.contentViewController = NSHostingController(
-            rootView: SettingsRootView()
-                .environmentObject(Subsystem.shared)
-                .environmentObject(Subsystem.shared.settings)
-                .environmentObject(navigation))
+        installContent()
         window.center()
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
 
+    /// A fresh SwiftUI hierarchy each time the window opens: one kept alive for the
+    /// app's lifetime could end up with an empty sidebar column, and stayed that way.
+    private func installContent() {
+        guard let window else { return }
+        let frame = window.frame
+        let hosting = NSHostingController(
+            rootView: SettingsRootView()
+                .environmentObject(Subsystem.shared)
+                .environmentObject(Subsystem.shared.settings)
+                .environmentObject(navigation))
+        // The window keeps the size the person gives it; SwiftUI resizing it to its
+        // content glitched the split view's layout.
+        hosting.sizingOptions = []
+        window.contentViewController = hosting
+        window.setFrame(frame, display: false)
+    }
+
     func show(section: SettingsSection? = nil) {
         if let section { navigation.section = section }
+        if window?.contentViewController == nil { installContent() }
         // While the window is open the app appears in the Dock and ⌘-Tab, like a normal app.
         NSApp.setActivationPolicy(.regular)
         showWindow(nil)
@@ -199,6 +213,11 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
 
     func windowWillClose(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
+        // Let the next show() build the window's content again.
+        DispatchQueue.main.async { [weak self] in
+            guard let window = self?.window, !window.isVisible else { return }
+            window.contentViewController = nil
+        }
     }
 }
 
