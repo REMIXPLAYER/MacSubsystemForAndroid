@@ -407,14 +407,3 @@ kbd { font: 0.85em var(--font-mono); padding: 1px 6px; border: 1px solid var(--r
   .dock span { width: 22px; height: 22px; border-radius: 6px; }
   .status th:nth-child(3), .status td:nth-child(3) { display: none; }
 }
-
-/* Screenshots */
-.shots { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 24px; align-items: start; }
-.shots-col { display: grid; gap: 24px; }
-.shot { margin: 0; }
-.shot img { display: block; width: 100%; height: auto; }
-.shot figcaption { margin-top: 10px; color: var(--ink-soft); font-size: 0.95rem; text-align: center; }
-@media (max-width: 760px) {
-  .shots { grid-template-columns: 1fr; }
-  .shot.tall { max-width: 360px; margin: 0 auto; }
-}

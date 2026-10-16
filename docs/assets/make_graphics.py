@@ -111,14 +111,14 @@ def how_it_works():
 def main():
     with tempfile.TemporaryDirectory() as work:
         (HERE / "banner.svg").write_text(hero(1280, 440, icon_png(256, work), 250, 64, [
-            ["Own window & Dock icon", "Liquid Glass", "Game controllers"],
+            ["Own window & Dock icon", "Game controllers", "Notifications"],
             ["Privacy controls", "Apple silicon", "Open source"],
         ]))
         (HERE / "how-it-works.svg").write_text(how_it_works())
 
         og = pathlib.Path(work) / "og-image.svg"
         og.write_text(hero(1200, 630, icon_png(512, work), 290, 62, [
-            ["Own window & Dock icon", "Liquid Glass", "Game controllers"],
+            ["Own window & Dock icon", "Game controllers", "Notifications"],
             ["Privacy controls", "Apple silicon", "Free & open source"],
         ]))
         subprocess.run(["swift", str(HERE / "render_svg.swift"), str(og), str(ROOT / "site/assets/og-image.png"),
