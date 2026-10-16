@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="300" viewBox="0 0 1280 300" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <title>How Mac Android Subsystem works</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#06201A"/><stop offset="0.55" stop-color="#0E3A31"/><stop offset="1" stop-color="#1C7A63"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.22" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#3DDC84" stop-opacity="0.28"/><stop offset="1" stop-color="#3DDC84" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="300" rx="28" fill="url(#bg)"/>
+  <rect width="1280" height="300" rx="28" fill="url(#glow)"/>
+  <text x="640.0" y="44" text-anchor="middle" font-size="22" font-weight="600" fill="#B7F5D0">How it works</text>
+  <rect x="10.0" y="70" width="212" height="160" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.2"/>
+  <circle cx="44.0" cy="106" r="15" fill="#B7F5D0"/>
+  <text x="44.0" y="112" text-anchor="middle" font-size="17" font-weight="700" fill="#06201A">1</text>
+  <text x="32.0" y="162" font-size="21" font-weight="700" fill="#FFFFFF">Menu bar app</text>
+  <text x="32.0" y="190" font-size="15.5" fill="#CFE8DF">Starts Android, installs</text>
+  <text x="32.0" y="211" font-size="15.5" fill="#CFE8DF">apps, applies modes</text>
+  <path d="M230.0 150 h28 m-9 -9 l9 9 l-9 9" fill="none" stroke="#B7F5D0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="272.0" y="70" width="212" height="160" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.2"/>
+  <circle cx="306.0" cy="106" r="15" fill="#B7F5D0"/>
+  <text x="306.0" y="112" text-anchor="middle" font-size="17" font-weight="700" fill="#06201A">2</text>
+  <text x="294.0" y="162" font-size="21" font-weight="700" fill="#FFFFFF">Virtual machine</text>
+  <text x="294.0" y="190" font-size="15.5" fill="#CFE8DF">QEMU on Apple's Hypervisor,</text>
+  <text x="294.0" y="211" font-size="15.5" fill="#CFE8DF">near native speed</text>
+  <path d="M492.0 150 h28 m-9 -9 l9 9 l-9 9" fill="none" stroke="#B7F5D0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="534.0" y="70" width="212" height="160" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.2"/>
+  <circle cx="568.0" cy="106" r="15" fill="#3DDC84"/>
+  <text x="568.0" y="112" text-anchor="middle" font-size="17" font-weight="700" fill="#06201A">3</text>
+  <text x="556.0" y="162" font-size="21" font-weight="700" fill="#FFFFFF">Android</text>
+  <text x="556.0" y="190" font-size="15.5" fill="#CFE8DF">LineageOS, no Google</text>
+  <text x="556.0" y="211" font-size="15.5" fill="#CFE8DF">apps, in the background</text>
+  <path d="M754.0 150 h28 m-9 -9 l9 9 l-9 9" fill="none" stroke="#B7F5D0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="796.0" y="70" width="212" height="160" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.2"/>
+  <circle cx="830.0" cy="106" r="15" fill="#B7F5D0"/>
+  <text x="830.0" y="112" text-anchor="middle" font-size="17" font-weight="700" fill="#06201A">4</text>
+  <text x="818.0" y="162" font-size="21" font-weight="700" fill="#FFFFFF">Virtual displays</text>
+  <text x="818.0" y="190" font-size="15.5" fill="#CFE8DF">One per app, streamed</text>
+  <text x="818.0" y="211" font-size="15.5" fill="#CFE8DF">with hardware decoding</text>
+  <path d="M1016.0 150 h28 m-9 -9 l9 9 l-9 9" fill="none" stroke="#B7F5D0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="1058.0" y="70" width="212" height="160" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.2"/>
+  <circle cx="1092.0" cy="106" r="15" fill="#3DDC84"/>
+  <text x="1092.0" y="112" text-anchor="middle" font-size="17" font-weight="700" fill="#06201A">5</text>
+  <text x="1080.0" y="162" font-size="21" font-weight="700" fill="#FFFFFF">Mac windows</text>
+  <text x="1080.0" y="190" font-size="15.5" fill="#CFE8DF">Dock icon, Launchpad,</text>
+  <text x="1080.0" y="211" font-size="15.5" fill="#CFE8DF">Spotlight, ⌘-Tab</text>
+</svg>

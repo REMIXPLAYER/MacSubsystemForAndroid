@@ -32,7 +32,7 @@ jobs:
           OWNER="${GITHUB_REPOSITORY%%/*}"
           REPO="${GITHUB_REPOSITORY##*/}"
           PAGES_URL="https://${OWNER,,}.github.io/${REPO}"
-          find _site -name '*.html' -o -name '*.js' | while read -r f; do
+          find _site -name '*.html' -o -name '*.js' -o -name '*.xml' -o -name '*.txt' | while read -r f; do
             sed -i "s#__REPO__#${GITHUB_REPOSITORY}#g; s#__PAGES__#${PAGES_URL}#g" "$f"
           done
           touch _site/.nojekyll

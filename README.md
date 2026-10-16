@@ -1,23 +1,62 @@
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="Mac Android Subsystem: run Android apps on your Mac, each in its own window with its own Dock icon" width="100%">
+</p>
+
+<p align="center">
+  <a href="https://github.com/harkhowalia-1/MacSubsystemForAndroid/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/harkhowalia-1/MacSubsystemForAndroid?include_prereleases&label=release&color=1C7A63"></a>
+  <a href="https://github.com/harkhowalia-1/MacSubsystemForAndroid/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/harkhowalia-1/MacSubsystemForAndroid/total?color=1C7A63"></a>
+  <img alt="macOS 15 or later" src="https://img.shields.io/badge/macOS-15%2B-0E3A31?logo=apple&logoColor=white">
+  <img alt="Apple silicon" src="https://img.shields.io/badge/Apple%20silicon-M1%E2%80%93M5-0E3A31?logo=apple&logoColor=white">
+  <img alt="Android 16" src="https://img.shields.io/badge/Android-16-3DDC84?logo=android&logoColor=white">
+  <a href="LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/github/license/harkhowalia-1/MacSubsystemForAndroid?color=1C7A63"></a>
+  <a href="https://github.com/harkhowalia-1/MacSubsystemForAndroid/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/harkhowalia-1/MacSubsystemForAndroid?style=social"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/harkhowalia-1/MacSubsystemForAndroid/releases/latest"><b>Download for Mac</b></a> ·
+  <a href="https://harkhowalia-1.github.io/MacSubsystemForAndroid/"><b>Website</b></a> ·
+  <a href="https://harkhowalia-1.github.io/MacSubsystemForAndroid/guide.html"><b>Guide</b></a> ·
+  <a href="docs/ARCHITECTURE.md"><b>How it works</b></a>
+</p>
+
 # Mac Android Subsystem (MAS)
 
-**Android apps, at home on your Mac.** Every Android app gets its own window, its own Dock icon and a place in Launchpad and Spotlight, with notifications, copy and paste, and game controllers.
+**Run Android apps on your Mac like Mac apps.** Mac Android Subsystem is a free, open-source way to run Android apps on Apple silicon Macs. Every Android app gets its own window, its own Dock icon and a place in Launchpad and Spotlight, with notifications, copy and paste, game controllers and Mac-style privacy controls. Think of it as the Windows Subsystem for Android, made for macOS.
 
-Double-click an `.apk` and the app installs and opens. Android (LineageOS 24, Android 17, no Google apps) runs in the background with Apple's Hypervisor framework.
+Double-click an `.apk` and the app installs and opens. Android (LineageOS, no Google apps) runs quietly in the background on Apple's Hypervisor framework, at close to native speed.
 
-- **Mac Android Subsystem (MAS)** is also what Android calls itself: the device name in Android's settings, Bluetooth and the model it reports.
-- **Always Ready**: start with the Mac and keep Android running, so apps open instantly. The menu bar item has status, start/stop, performance modes, your apps, Settings and Quit.
-- **Performance modes**, applied live (CPU cores, memory, scheduling, Android's power settings, frame rate):
-  - **Power Saver**: a hybrid of saving power and Smart. Android only runs while an Android app is open (it turns off 30 s after the last one closes) and, while it runs, saves power unless the app in front can have a little more.
-  - **Smart** (default): stays ready in the background and adapts all the time; it drops to saving power whenever other Mac apps need the processor or memory, the battery is low, Low Power Mode is on or the Mac is hot (to Balanced while an Android app is in front, so it stays usable).
-  - **Standard**: Android runs as it is, with nothing tuned (every core, all its memory, its own power settings, 60 fps windows), and stays ready.
-  - **Performance**: maximum performance, all the time, tuned for games too (Android's game and fixed-performance modes, up to 120 fps, lower latency).
-- **Game controllers**: any controller macOS supports appears in Android games as a standard gamepad.
-- **Privacy**: like Privacy & Security on the Mac, Settings › Privacy lists which Android apps asked for the camera, microphone, location, contacts and more, and lets you turn each one on or off.
-- **Never in the way**: the Subsystem cleans up its own downloads, leftovers, logs and Android's unused disk space.
+<p align="center">
+  <img src="docs/assets/screenshot-app-window.png" alt="F-Droid, an Android app store, running in its own Mac window" width="32%">
+  &nbsp;
+  <img src="docs/assets/screenshot-privacy.png" alt="Settings › Privacy: which Android apps may use the camera, microphone, location and more" width="62%">
+</p>
 
-**Website and downloads:** https://harkhowalia-1.github.io/MacSubsystemForAndroid (`.github/workflows/pages.yml` publishes `site/` to the `gh-pages` branch; GitHub Pages serves that branch: Settings › Pages › Deploy from a branch › `gh-pages`, `/ (root)`).
+## Features
 
-> Early development. The first builds happen in GitHub Actions on the first push, and nothing has run on a Mac yet. Expect the first CI runs and first boots to need fixes.
+| | |
+|---|---|
+| 🪟 **A window per app** | Each Android app runs on its own Android display, streamed into its own Mac window with its own Dock icon and ⌘-Tab entry. Resize it and the app re-lays itself out like on a tablet. |
+| 📦 **Install by double-click** | Open an `.apk`, `.apks`, `.apkm` or `.xapk` and it installs, shows up in Launchpad and opens. F-Droid is one click away. |
+| 🔔 **Mac notifications** | Android notifications land in Notification Centre; click one and the app opens. |
+| 📋 **Copy and paste** | Between Android and the Mac, both ways. Your keyboard and layout just work. |
+| 🎮 **Game controllers** | Any controller macOS supports (Xbox, PlayStation, Switch Pro, MFi) appears in Android games as a standard gamepad. |
+| ✋ **Privacy controls** | Like Privacy & Security on the Mac: see which apps asked for the camera, microphone, location, contacts and more, and turn access on or off. |
+| ⚡ **Performance modes** | Power Saver, Smart (default), Standard and Performance, applied live: processor cores, memory, scheduling, Android's power settings and frame rate (up to 120 fps). |
+| 🟢 **Always Ready** | Start with your Mac and keep Android running, so apps open instantly. The menu bar item has status, start/stop, modes, your apps and Settings. |
+| 🧹 **Never in the way** | Cleans up its own downloads, leftovers, logs and Android's unused disk space. |
+| 🔓 **Open source** | GPLv3, built on LineageOS, QEMU and scrcpy. No account and no Google services; nothing leaves your Mac. |
+
+**Mac Android Subsystem (MAS)** is also what Android calls itself: the device name in Android's settings, Bluetooth and the model it reports.
+
+<p align="center">
+  <img src="docs/assets/how-it-works.svg" alt="How it works: the menu bar app runs Android in a virtual machine on Apple's Hypervisor; each app gets a virtual display streamed into its own Mac window" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/assets/screenshot-settings.png" alt="The Settings window, modelled on the Mac's System Settings, showing Android running" width="80%">
+</p>
+
+> Early pre-release: it works, but expect rough edges. [Report a problem](https://github.com/harkhowalia-1/MacSubsystemForAndroid/issues) and it gets fixed.
 
 ## How it fits into macOS
 
@@ -37,6 +76,20 @@ The menu bar item and the Settings window hold the rest: Always Ready, what happ
 ## Requirements
 
 A Mac with Apple silicon and macOS 15 or later. Android uses a quarter of your memory by default (up to 6 GB) and about 8 GB of disk.
+
+## FAQ
+
+**Can I run Android apps on a Mac?** Yes. On any Mac with Apple silicon and macOS 15 or later, Mac Android Subsystem runs real Android (LineageOS) and shows each app in its own Mac window.
+
+**Is it an emulator?** Not in the slow sense. Android is built for Arm and runs in a virtual machine on Apple's Hypervisor framework, on the same kind of processor, so it runs at close to native speed. There is no phone-shaped emulator window: apps look and behave like Mac apps.
+
+**Is it like the Windows Subsystem for Android (WSA)?** That's the idea: Android apps side by side with your other apps, in their own windows, from Launchpad and Spotlight.
+
+**Does it have the Google Play Store?** No. There are no Google apps or services. Install apps from F-Droid (one click in Settings) or any `.apk`, `.apks`, `.apkm` or `.xapk` file.
+
+**Is it free?** Yes, and open source under GPL-3.0.
+
+**Does it work on Intel Macs?** No. It needs Apple silicon (M1 or later).
 
 ## Repository layout
 
