@@ -60,7 +60,9 @@ jobs:
   mac:
     name: Mac app
     needs: bridge
-    runs-on: macos-15
+    # macOS 26: actool renders the Liquid Glass icon (apple/Resources/AppIcon.icon) with
+    # system frameworks that macOS 15 lacks, and crashes there.
+    runs-on: macos-26
     timeout-minutes: 90
     env:
       HAS_MAC_CERT: ${{ secrets.MAC_CERT_P12 != '' }}
