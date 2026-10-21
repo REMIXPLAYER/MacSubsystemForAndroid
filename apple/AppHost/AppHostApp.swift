@@ -76,6 +76,8 @@ final class AppHostDelegate: NSObject, NSApplicationDelegate {
         let viewMenu = NSMenu(title: "View")
         viewMenu.addItem(withTitle: "Back", action: #selector(AndroidWindowController.goBack(_:)), keyEquivalent: "[")
         viewMenu.addItem(withTitle: "Restart \(appName)", action: #selector(AndroidWindowController.restartApp(_:)), keyEquivalent: "r")
+        let rotate = viewMenu.addItem(withTitle: "Rotate Window", action: #selector(AndroidWindowController.rotateWindow(_:)), keyEquivalent: "r")
+        rotate.keyEquivalentModifierMask = [.command, .option]
         viewMenu.addItem(.separator())
         let fullScreen = viewMenu.addItem(withTitle: "Enter Full Screen", action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f")
         fullScreen.keyEquivalentModifierMask = [.command, .control]

@@ -77,6 +77,13 @@ enum AndroidSetup {
         throw Failure.bootTimeout
     }
 
+    /// No lock screen: nobody sees Android's own display, and a keyguard that is
+    /// always up makes some apps treat the device as locked. Applied on every boot.
+    static func disableLockScreen(_ adb: ADBConnection) {
+        _ = try? adb.exec("locksettings set-disabled true", timeout: 10)
+        _ = try? adb.exec("wm dismiss-keyguard", timeout: 10)
+    }
+
     /// Android's device name: Settings › About, Bluetooth and other devices see
     /// "Mac Android Subsystem (MAS)" rather than the virtual machine's model.
     /// Applied on every boot so a rename reaches existing installs too.
@@ -146,6 +153,11 @@ enum AndroidSetup {
         guard let apk = AndroidBridge.bundledAPK else { throw Failure.bridgeMissing }
         let size = (try FileManager.default.attributesOfItem(atPath: apk.path)[.size] as? NSNumber)?.int64Value ?? 0
         var output = try adb.exec("cmd package install -r -S \(size)", inputFile: apk)
+        // Right after a first boot Android may still be installing it (issue #5).
+        for _ in 0..<5 where output.contains("INSTALL_FAILED_DUPLICATE_PACKAGE") {
+            Thread.sleep(forTimeInterval: 3)
+            output = try adb.exec("cmd package install -r -S \(size)", inputFile: apk)
+        }
         if output.contains("INSTALL_FAILED_UPDATE_INCOMPATIBLE") {
             // A bridge signed with another key (e.g. a different build): replace it.
             _ = try? adb.exec("pm uninstall \(AndroidBridge.package)")

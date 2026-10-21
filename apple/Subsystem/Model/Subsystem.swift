@@ -289,6 +289,7 @@ final class Subsystem: ObservableObject {
             AndroidSetup.firstBoot(adb)
         }
         AndroidSetup.applyIdentity(adb)
+        AndroidSetup.disableLockScreen(adb)
         AndroidSetup.allowInstallingApps(adb)
         progress("Preparing apps…")
         try AndroidSetup.ensureBridge(adb)

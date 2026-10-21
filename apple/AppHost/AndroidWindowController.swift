@@ -26,6 +26,9 @@ final class AndroidWindowController: NSWindowController, NSWindowDelegate {
     private let gamepads = GamepadBridge()
     /// Keeps macOS from throttling this window while in the Performance or Game level.
     private var activity: NSObjectProtocol?
+    /// Follows the orientation the app asks for (issue #2).
+    private var orientationWatch: Task<Void, Never>?
+    private var lastRequestedLandscape: Bool?
 
     init(app: AndroidApp, icon: NSImage?) {
         self.app = app
@@ -176,6 +179,7 @@ final class AndroidWindowController: NSWindowController, NSWindowDelegate {
                     self.window?.makeFirstResponder(self.displayView)
                     self.gamepads.session = session
                     if self.window?.isKeyWindow == true { self.gamepads.activate() }
+                    self.watchOrientation()
                 }
             } catch {
                 await MainActor.run { [weak self] in self?.showError(error) }
@@ -185,6 +189,7 @@ final class AndroidWindowController: NSWindowController, NSWindowDelegate {
 
     private func sessionEnded(_ error: Error?) {
         guard !isClosing else { return }
+        orientationWatch?.cancel()
         gamepads.session = nil
         session = nil
         connection?.close()
@@ -219,6 +224,7 @@ final class AndroidWindowController: NSWindowController, NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         gamepads.deactivate()
         isClosing = true
+        orientationWatch?.cancel()
         session?.stop()
         connection?.close()
         NSApp.terminate(nil)
@@ -241,7 +247,69 @@ final class AndroidWindowController: NSWindowController, NSWindowDelegate {
         return Int((160 * scale * factor).rounded())
     }
 
+    // MARK: Orientation
+
+    /// Games and other apps that lock themselves to landscape (or portrait) get a window
+    /// of that shape: Android reports what the app asks for, and the window turns when
+    /// that changes. A shape chosen by hand stays until the app asks for another.
+    private func watchOrientation() {
+        orientationWatch?.cancel()
+        lastRequestedLandscape = nil
+        guard let connection else { return }
+        let package = app.package
+        orientationWatch = Task.detached(priority: .utility) { [weak self] in
+            while !Task.isCancelled {
+                let landscape = Self.requestedLandscape(package: package, connection: connection)
+                await MainActor.run { [weak self] in self?.applyRequestedOrientation(landscape) }
+                try? await Task.sleep(for: .seconds(2))
+            }
+        }
+    }
+
+    /// true for a landscape request, false for portrait, nil when the app takes any shape.
+    nonisolated private static func requestedLandscape(package: String, connection: ADBConnection) -> Bool? {
+        guard package.allSatisfy({ $0.isLetter || $0.isNumber || $0 == "." || $0 == "_" }),
+              let text = try? connection.execString(
+                "dumpsys activity activities | grep -A60 ' u0 \(package)/' | grep -m1 'requestedOrientation='", timeout: 5)
+        else { return nil }
+        if text.contains("LANDSCAPE") { return true }
+        if text.contains("PORTRAIT") { return false }
+        return nil
+    }
+
+    private func applyRequestedOrientation(_ landscape: Bool?) {
+        guard let landscape, landscape != lastRequestedLandscape else { return }
+        lastRequestedLandscape = landscape
+        let size = displayView.bounds.size
+        guard size.width > 0, size.height > 0, (size.width > size.height) != landscape else { return }
+        rotate()
+    }
+
+    /// Swap the window's width and height, keeping its centre and staying on screen.
+    private func rotate() {
+        guard let window, !window.styleMask.contains(.fullScreen) else { return }
+        let content = displayView.bounds.size
+        let chrome = window.frame.height - displayView.bounds.height
+        var frame = window.frame
+        let center = NSPoint(x: frame.midX, y: frame.midY)
+        frame.size = NSSize(width: content.height, height: content.width + chrome)
+        if let visible = window.screen?.visibleFrame {
+            let scale = min(1, visible.width / frame.width, visible.height / frame.height)
+            frame.size = NSSize(width: (frame.width * scale).rounded(),
+                                height: ((frame.height - chrome) * scale + chrome).rounded())
+            frame.origin = NSPoint(x: min(max(center.x - frame.width / 2, visible.minX), visible.maxX - frame.width),
+                                   y: min(max(center.y - frame.height / 2, visible.minY), visible.maxY - frame.height))
+        } else {
+            frame.origin = NSPoint(x: center.x - frame.width / 2, y: center.y - frame.height / 2)
+        }
+        window.setFrame(frame, display: true, animate: true)
+    }
+
     // MARK: Actions (menus and toolbar)
+
+    @objc func rotateWindow(_ sender: Any?) {
+        rotate()
+    }
 
     @objc func goBack(_ sender: Any?) {
         session?.injectKey(.down, keycode: AndroidKeys.back)

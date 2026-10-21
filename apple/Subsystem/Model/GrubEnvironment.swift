@@ -13,6 +13,16 @@
 //
 // grub_timeout=0 skips the menu, which otherwise waits 10 s on every boot.
 //
+// arm64.nobti: LineageOS 24's kernel (6.18) enables Branch Target Identification for
+// code that lacks the landing pads, so on a Mac whose processor has BTI (M2 and
+// later) Android panics within seconds of starting (issue #5). GRUB has no setting
+// for extra kernel arguments, but it pastes android_wifi_impl into the command line
+// unquoted, so "none arm64.nobti" adds androidboot.wifi_impl=none (Android only acts
+// on virt_wifi) and arm64.nobti. Macs without BTI (M1) keep BTI on in Android.
+//
+// android_wifi_impl is never virt_wifi: VirtWifi renames eth0 and only has an
+// address once Android joins its network, so the Mac's ADB couldn't reach Android.
+//
 // The file is edited in the VM's overlay, never in the image, with qemu-img writing
 // through a raw view of the disk at the file's offset. QEMU must not be running.
 //
@@ -30,10 +40,21 @@ enum GrubEnvironment {
         }
     }
 
-    /// Turn on the image's "Insecure ADB" setting and skip GRUB's menu. Does nothing
-    /// for images without these settings.
+    /// Turn on the image's "Insecure ADB" setting, skip GRUB's menu, keep Android on
+    /// Ethernet, and turn off BTI in Android on Macs whose processor has it. Does
+    /// nothing for images without these settings.
     static func configure(_ disks: [URL]) throws {
-        try set(["android_insecure_adb": "1", "grub_timeout": "0"], on: disks)
+        let wifi = hostHasBTI ? "none arm64.nobti" : ""
+        try set(["android_insecure_adb": "1", "grub_timeout": "0", "android_wifi_impl": wifi], on: disks)
+    }
+
+    /// The Mac's processor has Branch Target Identification (M2 and later).
+    /// `defaults write <bundle id> androidNoBTI -bool YES|NO` overrides it.
+    static var hostHasBTI: Bool {
+        if let forced = UserDefaults.standard.object(forKey: "androidNoBTI") as? Bool { return forced }
+        var value: Int32 = 0
+        var size = MemoryLayout<Int32>.size
+        return sysctlbyname("hw.optional.arm.FEAT_BTI", &value, &size, nil, 0) == 0 && value == 1
     }
 
     static func set(_ settings: KeyValuePairs<String, String>, on disks: [URL]) throws {
