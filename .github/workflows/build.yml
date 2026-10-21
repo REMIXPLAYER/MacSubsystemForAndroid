@@ -86,6 +86,14 @@ jobs:
       - name: scrcpy server
         run: core/scripts/fetch-scrcpy-server.sh
 
+      # QEMU is built from source (with SDL audio for the microphone); keep the build
+      # between runs until the script (and so the version or options) changes.
+      - name: Cache QEMU build
+        uses: actions/cache@v4
+        with:
+          path: build/qemu-install
+          key: qemu-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('core/scripts/bundle-qemu.sh') }}
+
       - name: Bundle QEMU
         run: core/scripts/bundle-qemu.sh
 

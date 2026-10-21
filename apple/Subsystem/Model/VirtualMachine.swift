@@ -62,6 +62,22 @@ final class VirtualMachine: @unchecked Sendable {
 
     static var qemuImg: URL? { helper("qemu-img") }
 
+    /// The bundled QEMU is built with SDL audio, which can record; Homebrew's (used by
+    /// development builds) isn't, and would refuse to start with `-audiodev sdl`.
+    static let hasSDLAudio: Bool = {
+        guard let qemu = qemuSystem else { return false }
+        let process = Process()
+        process.executableURL = qemu
+        process.arguments = ["-audiodev", "help"]
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = Pipe()
+        guard (try? process.run()) != nil else { return false }
+        let output = String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        process.waitUntilExit()
+        return output.split(separator: "\n").contains { $0.trimmingCharacters(in: .whitespaces) == "sdl" }
+    }()
+
     private static func helper(_ name: String) -> URL? {
         let candidates = [
             Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/\(name)"),
@@ -130,6 +146,8 @@ final class VirtualMachine: @unchecked Sendable {
     // MARK: Command line
 
     static func arguments(for c: Configuration, firmware: URL) -> [String] {
+        // QEMU's Core Audio backend can't record (max_voices_in = 0); SDL can, and plays too.
+        let recording = c.microphone && hasSDLAudio
         var args: [String] = [
             "-name", AppConfig.displayName,
             "-machine", "virt",
@@ -162,9 +180,9 @@ final class VirtualMachine: @unchecked Sendable {
             "-qmp", "unix:\(QMPClient.socketURL.path),server=on,wait=off",
             "-device", "virtio-serial",
             "-serial", "file:\(consoleURL.path)",
-            "-audiodev", "coreaudio,id=audio0",
+            "-audiodev", recording ? "sdl,id=audio0" : "coreaudio,id=audio0",
             "-device", "intel-hda",
-            "-device", c.microphone ? "hda-duplex,audiodev=audio0" : "hda-output,audiodev=audio0",
+            "-device", recording ? "hda-duplex,audiodev=audio0" : "hda-output,audiodev=audio0",
             // The main display only hosts Android's own launcher; app windows use virtual displays.
             "-device", "virtio-gpu-pci,xres=1080,yres=1920",
         ]
