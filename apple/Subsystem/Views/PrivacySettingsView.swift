@@ -104,7 +104,7 @@ struct PrivacyCategoryView: View {
         switch category {
         case .camera: return "Android doesn't have a camera on this Mac yet, so apps can't take photos even when allowed."
         case .location: return "Android has no location source on this Mac, so apps can't find where you are even when allowed."
-        case .phone, .callLogs, .messages: return "Android has no phone service on this Mac."
+        case .phone, .callLogs, .messages: return "Android on this Mac has no cellular service, so it can't make calls and has no call log or text messages."
         case .bodySensors, .activity: return "Android has no body or motion sensors on this Mac."
         default: return nil
         }
@@ -177,7 +177,7 @@ struct PrivacyToggleRow: View {
             }
             if access?.locked == true {
                 Image(systemName: "lock.fill").foregroundStyle(.secondary)
-                    .help(L10n.format("Android manages this permission for %@.", app.label))
+                    .help(L10n.format("Android locks this permission for %@, so it can't be changed here.", app.label))
             }
             Toggle(isOn: Binding(get: { access?.allowed ?? false },
                                  set: { privacy.set($0, for: app, in: category) })) {

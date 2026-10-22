@@ -47,8 +47,8 @@
 "Automatic" = "自动";
 "As needed" = "需要时";
 "Continuous" = "保持运行";
-"Follows the performance mode: Smart, Standard and Performance keep Android ready (Smart lets it idle at the lowest level). Power Saver turns it off as soon as no app is open." = "智能、标准和性能保持运行，智能空闲时降到省电档。省电模式在没有 Android App 打开时关闭 Android。";
-"Android starts when you open an Android app and turns off a few minutes after you close the last one. Apps take longer to open the first time." = "打开 Android App 时启动。达到设定的分钟数后关闭。首次打开等待更长。";
+"Smart, Standard and Performance keep Android ready. Smart drops to Power Saver when idle. Power Saver turns Android off when no app is open." = "智能、标准和性能保持运行，智能空闲时降到省电档。省电模式在没有 Android App 打开时关闭 Android。";
+"Android starts when you open an Android app and turns off after the minutes you set. The first open takes longer." = "打开 Android App 时启动。达到设定的分钟数后关闭。首次打开等待更长。";
 "Android stays ready in the background, so apps open quickly. Uses more memory and battery. Power Saver still turns it off when no app is open." = "Android 在后台保持运行，应用可以迅速打开，但会占用更多内存和电量。没有应用打开时，省电模式仍会关闭 Android。";
 "Power Saver is on: Android turns off 30 seconds after the last Android app closes." = "省电模式开启时：最后一个 Android 应用关闭 30 秒后，Android 也会关闭。";
 "Turn off after %@ minutes without open apps" = "没有应用打开时，%@ 分钟后关闭 Android";
@@ -186,7 +186,7 @@
 "Android has no microphone when this is off, whatever apps are allowed." = "关闭后，Android 将没有麦克风。即使应用已获得允许，也无法使用。";
 "Android doesn't have a camera on this Mac yet, so apps can't take photos even when allowed." = "本机尚未向 Android 系统提供摄像头。即使允许，应用也无法拍照或录像。";
 "Android has no location source on this Mac, so apps can't find where you are even when allowed." = "Android 系统在本机上没有位置来源。即使允许，也无法获得位置，也不会使用“系统设置”中的“定位服务”。";
-"Android has no phone service on this Mac." = "本机上的 Android 系统没有蜂窝网络，无法拨打电话，也没有通话记录和短信。";
+"Android on this Mac has no cellular service, so it can't make calls and has no call log or text messages." = "本机上的 Android 系统没有蜂窝网络，无法拨打电话，也没有通话记录和短信。";
 "Android has no body or motion sensors on this Mac." = "本机没有向 Android 系统提供心率或运动数据。即使允许，应用也无法读取。";
 "Checking apps…" = "正在查看应用…";
 "No apps have asked to %@." = "还没有应用申请%@。";
@@ -194,7 +194,7 @@
 "Turning access on allows it while the app is in use. Turning it off also removes access in the background." = "打开后，应用仅能在使用时获取位置。关闭后，后台的位置权限也会一并关闭。";
 "Checking…" = "正在查看…";
 "%@ hasn't asked for access to any private data." = "%@ 还没有申请任何权限。";
-"Android manages this permission for %@." = "%@ 的这项权限由 Android 系统锁定，无法在此更改。";
+"Android locks this permission for %@, so it can't be changed here." = "%@ 的这项权限由 Android 系统锁定，无法在此更改。";
 "%@ for %@" = "%2$@ 的%1$@";
 "Couldn't change access" = "未能更改这项权限";
 "Camera" = "摄像头";
