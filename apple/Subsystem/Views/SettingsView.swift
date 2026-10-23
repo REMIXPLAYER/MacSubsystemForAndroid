@@ -161,7 +161,7 @@ struct StatusCard: View {
                 .foregroundStyle(color)
                 .frame(width: 40, height: 40)
             VStack(alignment: .leading, spacing: 4) {
-                Text(L10n.format("Android is %@", subsystem.state.title.lowercased()))
+                Text(L10n.format("Android is %@", subsystem.state.title.localizedLowercase))
                     .font(.headline)
                 if let detail = subsystem.state.detail {
                     Text(detail).foregroundStyle(.secondary).textSelection(.enabled)
